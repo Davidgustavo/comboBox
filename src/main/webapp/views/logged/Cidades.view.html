@@ -1,1 +1,48 @@
-<div class="page-header component-holder" data-component="crn-header" id="crn-header-267761"><h1 class="component-holder text-center" xattr-position="text-center" data-component="crn-title" id="crn-title9980">Cidades</h1></div><datasource name="Pais" entity="api/cronapi/query/trqunq73ycme/" keys="id" rows-per-page="100" on-before-create="" on-after-create="" on-before-update="" on-after-update="" on-before-delete="" on-after-delete="" on-after-fill="" data-component="crn-datasource" class="component-holder" id="crn-datasource-550248"></datasource><div class="component-holder ng-binding ng-scope" data-component="crn-combobox-dynamic" id="crn-combobox-dynamic-301546"><div class="form-group"><label for="">{{'Pais' | translate}}</label><ui-select crn-datasource="Pais" ng-model="datasource.active" ng-disabled="disabled" theme="bootstrap" class="crn-select" ng-required="false"><ui-select-match placeholder="Select..." class="">{{$select.selected.nome}}</ui-select-match><ui-select-choices repeat="rowData as rowData in datasource.data | filter : $select.search" class="" refresh="" refresh-deplay=""><div class="">{{rowData.nome}}</div></ui-select-choices></ui-select></div></div><datasource name="Estado" entity="api/cronapi/query/qhhs8q11sjsm/" keys="id" rows-per-page="10000" on-before-create="" on-after-create="" on-before-update="" on-after-update="" on-before-delete="" on-after-delete="" on-after-fill="" data-component="crn-datasource" class="component-holder" id="crn-datasource-48346" dependent-by="{{}}"></datasource><div class="component-holder ng-binding ng-scope" data-component="crn-combobox-dynamic" id="crn-combobox-dynamic-878002"><div class="form-group"><label for="">Label</label><ui-select crn-datasource="Estado" ng-model="datasource.active" ng-disabled="disabled" theme="bootstrap" class="crn-select" ng-required="false"><ui-select-match placeholder="Select..." class="">{{$select.selected.nome}}</ui-select-match><ui-select-choices repeat="rowData as rowData in datasource.data | filter : $select.search" class="" refresh="" refresh-deplay=""><div class="">{{rowData.nome}}</div></ui-select-choices></ui-select></div></div><div class="component-holder ng-binding ng-scope" data-component="crn-combobox-dynamic" id="crn-combobox-dynamic-525986"></div><datasource name="Cidade" entity="api/cronapi/query/1iynbqeqsdeu9/" keys="id" rows-per-page="10000" on-before-create="" on-after-create="" on-before-update="" on-after-update="" on-before-delete="" on-after-delete="" on-after-fill="" data-component="crn-datasource" class="component-holder" id="crn-datasource-138117"></datasource><div class="component-holder ng-binding ng-scope" data-component="crn-combobox-dynamic" id="crn-combobox-dynamic-850589"><div class="form-group"><label for="">{{'Cidade' | translate}}</label><ui-select crn-datasource="Cidade" ng-model="datasource.active" ng-disabled="disabled" theme="bootstrap" class="crn-select" ng-required="false"><ui-select-match placeholder="Select..." class="">{{$select.selected.nome}}</ui-select-match><ui-select-choices repeat="rowData as rowData in datasource.data | filter : $select.search" class="" refresh="" refresh-deplay=""><div class="">{{rowData.nome}}</div></ui-select-choices></ui-select></div></div>
+<div class="page-header component-holder" data-component="crn-header" id="crn-header-267761">
+  <h1 class="component-holder text-center" xattr-position="text-center" data-component="crn-title" id="crn-title9980">Cidades</h1>
+</div>
+<datasource name="Pais" entity="api/cronapi/query/trqunq73ycme/" keys="id" rows-per-page="100" on-before-create="" on-after-create="" on-before-update="" on-after-update="" on-before-delete="" on-after-delete="" on-after-fill="" data-component="crn-datasource" class="component-holder" id="crn-datasource-550248"></datasource>
+<div class="component-holder ng-binding ng-scope" data-component="crn-combobox-dynamic" id="crn-combobox-dynamic-301546">
+  <div class="form-group">
+    <label for="">{{'Pais' | translate}}</label>
+    <ui-select crn-datasource="Pais" ng-model="datasource.active" ng-disabled="disabled" theme="bootstrap" class="crn-select" ng-required="false">
+      <ui-select-match placeholder="Select..." class="">
+        {{$select.selected.nome}}
+      </ui-select-match>
+      <ui-select-choices repeat="rowData as rowData in datasource.data | filter : $select.search" class="" refresh="" refresh-deplay="">
+        <div class="">
+          {{rowData.nome}}
+        </div>
+      </ui-select-choices>
+    </ui-select>
+  </div>
+</div>
+<datasource name="Estado" entity="api/cronapi/query/qhhs8q11sjsm/" keys="id" rows-per-page="10000" on-before-create="" on-after-create="" on-before-update="" on-after-update="" on-before-delete="" on-after-delete="" on-after-fill="" data-component="crn-datasource" class="component-holder" id="crn-datasource-48346" dependent-by="{{}}"></datasource>
+<div class="component-holder ng-binding ng-scope" data-component="crn-combobox-dynamic" id="crn-combobox-dynamic-997967"> 
+  <div class="form-group"> 
+    <label for="">Label</label> 
+    <ui-select crn-datasource="Estado" ng-model="datasource.active" ng-disabled="disabled" theme="bootstrap" class="crn-select" ng-required="false"> 
+      <ui-select-match placeholder="" class="" id="vars.combo" ng-model="vars.combo">{{vars.combo = $select.selected.nome}}</ui-select-match> 
+      <ui-select-choices repeat="rowData as rowData in datasource.data | filter : $select.search" class="" refresh="" refresh-deplay=""> 
+        <div class="" ng-click="cronapi.util.makeCallServerBlocklyAsync('blockly.SelecioneCidade:Executar', null, null)">{{rowData.nome}}</div> 
+      </ui-select-choices> 
+    </ui-select> 
+  </div> 
+</div>
+<div class="component-holder ng-binding ng-scope" data-component="crn-combobox-dynamic" id="crn-combobox-dynamic-525986"></div>
+<datasource name="Cidade" entity="api/cronapi/query/1iynbqeqsdeu9/{{vars.combo}}/" keys="id" rows-per-page="10000" on-before-create="" on-after-create="" on-before-update="" on-after-update="" on-before-delete="" on-after-delete="" on-after-fill="" data-component="crn-datasource" class="component-holder" id="crn-datasource-138117"></datasource>
+<div class="component-holder ng-binding ng-scope" data-component="crn-combobox-dynamic" id="crn-combobox-dynamic-850589">
+  <div class="form-group">
+    <label for="">{{'Cidade' | translate}}</label>
+    <ui-select crn-datasource="Cidade" ng-model="datasource.active" ng-disabled="disabled" theme="bootstrap" class="crn-select" ng-required="false">
+      <ui-select-match placeholder="Select..." class="">
+        {{$select.selected.nome}}
+      </ui-select-match>
+      <ui-select-choices repeat="rowData as rowData in datasource.data | filter : $select.search" class="" refresh="" refresh-deplay="">
+        <div class="">
+          {{rowData.nome}}
+        </div>
+      </ui-select-choices>
+    </ui-select>
+  </div>
+</div><button class="btn btn-default component-holder" type="submit" ng-click="cronapi.util.makeCallServerBlocklyAsync('blockly.SelecioneCidade:Executar', null, null)" xattr-size="" xattr-fullsize="" xattr-theme="btn-default" data-component="crn-button" id="crn-button-300681"><i class="glyphicon glyphicon-home"></i> <span>Button </span></button>

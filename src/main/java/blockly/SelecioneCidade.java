@@ -12,22 +12,24 @@ public class SelecioneCidade {
 
 	/**
 	 *
-	 * @param param_nomeEstado
 	 * @return Var
 	 */
-	// selecioneCidade
-	public static Var Executar(Var param_nomeEstado) throws Exception {
+	// combo
+	public static Var Executar() throws Exception {
 		return new Callable<Var>() {
 
-			// param
-			private Var nomeEstado = param_nomeEstado;
-			// end
+			private Var item = Var.VAR_NULL;
+			private Var combo = Var.VAR_NULL;
 
 			public Var call() throws Exception {
-				nomeEstado = nomeEstado;
+				item = cronapi.screen.Operations.getValueOfField(Var.valueOf("vars.combo"));
 				cronapi.util.Operations.callClientFunction(Var.valueOf("cronapi.screen.notify"), Var.valueOf("success"),
-						nomeEstado);
-				return Var.VAR_NULL;
+						item);
+				combo = cronapi.database.Operations.query(Var.valueOf("app.entity.Cidade"),
+						Var.valueOf("select c.nome from Cidade c where c.estado.nome = :estadoNome"),
+						Var.valueOf("estadoNome", item));
+				System.out.println(combo.getObjectAsString());
+				return combo;
 			}
 		}.call();
 	}

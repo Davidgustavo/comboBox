@@ -331,42 +331,56 @@
 		"customId": "cidade",
 		"queryName": "cidade",
 		"screen": "src/main/webapp/views/logged/Cidades.view.html",
-		"sourceType": "blockly",
-		"blockly": {
-			"blocklyClass": "blockly.SelecioneCidade",
-			"blocklyMethod": "Executar",
-			"blocklyLanguage": "java",
-			"blocklyJson": {
-				"namespace": "blockly.SelecioneCidade",
-				"classNameNew": "SelecioneCidade",
-				"classNameOld": "selecioneCidade",
-				"sourcePath": "src/main/java/blockly/selecioneCidade.blockly",
-				"language": "java",
-				"class": "blockly.SelecioneCidade",
-				"methods": [
+		"sourceType": "entityFullName",
+		"blockly": null,
+		"entitySimpleName": "Cidade",
+		"entityFullName": "app.entity.Cidade",
+		"query": {
+			"isValid": true,
+			"isEmpty": false,
+			"operationType": "object",
+			"type": "select",
+			"rulesEntity": [
+				{
+					"entity": "Cidade",
+					"namespace": "app.entity.Cidade",
+					"alias": "c"
+				}
+			],
+			"rulesSelect": [
+				{
+					"func": "get",
+					"field": "c",
+					"type": "string"
+				}
+			],
+			"rulesGroupBy": [],
+			"rulesHaving": [],
+			"rulesOrderBy": [],
+			"rules": {
+				"condition": "AND",
+				"rules": [
 					{
-						"name": "Executar",
-						"hasReturn": "true",
-						"params": [
-							"nomeEstado"
-						]
+						"id": "c.estado.nome",
+						"field": "c.estado.nome",
+						"type": "string",
+						"input": "text",
+						"operator": "equal",
+						"value": ":estadoNome",
+						"valueIsField": false
 					}
-				]
+				],
+				"not": false,
+				"valid": true
 			},
-			"blocklyFunctionCall": "cronapi.util.makeCallServerBlocklyAsync('blockly.SelecioneCidade:Executar', null, null)",
-			"blocklyGETMethod": "Executar",
-			"blocklyPOSTMethod": "Executar",
-			"blocklyPUTMethod": "Executar",
-			"blocklyDELETEMethod": "Executar",
-			"blocklyFILTERMethod": "Executar"
+			"isRawSql": false,
+			"multiTenant": true,
+			"paginatorAutomatic": false
 		},
-		"entitySimpleName": null,
-		"entityFullName": null,
-		"query": "",
 		"queryParamsValues": [
 			{
-				"fieldName": "nomeEstado",
-				"fieldValue": ""
+				"fieldName": "estadoNome",
+				"fieldValue": "{{vars.combo}}"
 			}
 		],
 		"verbs": {
@@ -391,14 +405,22 @@
 			"onNavigate": null,
 			"onGetData": null
 		},
-		"defaultValues": {},
-		"security": {},
+		"defaultValues": {
+			"id": null,
+			"nome": null,
+			"estado": null
+		},
+		"security": {
+			"id": null,
+			"nome": null,
+			"estado": null
+		},
 		"calcFields": {},
 		"calcFieldsSecurity": {},
 		"errorHandles": {
 			"primaryKey": null,
 			"foreignKey": null
 		},
-		"serviceUrl": "api/cronapi/query/1iynbqeqsdeu9/"
+		"serviceUrl": "api/cronapi/query/1iynbqeqsdeu9/{{vars.combo}}/"
 	}
 }
