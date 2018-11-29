@@ -1,0 +1,467 @@
+<div class="page-header component-holder genClass8776" data-component="crn-header" id="crn-header-450527">
+  <h1 class="component-holder text-left" xattr-position="text-left" data-component="crn-title" id="crn-title9692">Usuários</h1>
+  <button class="btn btn-primary" type="submit" onclick="" data-component="crn-button" ng-click="User.startInserting()" ng-hide="User.inserting || User.editing"><i class="fa fa-user"></i> <span class="">Criar novo usuário</span></button>
+</div> 
+<!-- div row para pesquisa --> 
+<!--<div class="row">--> 
+<div ng-hide="User.inserting || User.editing" class="component-holder ng-binding ng-scope" data-component="crn-datasource-filter-complex"> 
+  <fieldset> 
+    <div data-component="crn-datasource-filter" id="crn-datasource-filter-login" class="col-md-3 col-lg-3"> 
+      <div class="form-group"> 
+        <label for="textinput-filter" class="">Email</label> 
+        <input type="text" ng-model="vars.search_login" mask="" mask-placeholder="" cronapp-filter="login" cronapp-filter-caseinsensitive="false" cronapp-filter-autopost="false" cronapp-filter-operator="" crn-datasource="User" class="form-control" value="" placeholder="Login"> 
+      </div> 
+    </div> 
+    <div data-component="crn-datasource-filter" id="crn-datasource-filter-mobile" class="col-lg-3 col-md-3"> 
+      <div class="form-group"> 
+        <label for="textinput-filter" class="">Celular</label> 
+        <input type="text" ng-model="vars.search_mobile" mask="(99) 99999-9999;0" mask-placeholder="" cronapp-filter="mobile" cronapp-filter-caseinsensitive="false" cronapp-filter-autopost="false" cronapp-filter-operator="" crn-datasource="User" class="form-control" value="" placeholder="Celular"> 
+      </div> 
+    </div> 
+    <div data-component="crn-datasource-filter" id="crn-datasource-filter-landline" class="col-lg-3 col-md-3"> 
+      <div class="form-group"> 
+        <label for="textinput-filter" class="">Telefone</label> 
+        <input type="text" ng-model="vars.search_landline" mask="(99) 9999-9999;0" mask-placeholder="" cronapp-filter="landline" cronapp-filter-caseinsensitive="false" cronapp-filter-autopost="false" cronapp-filter-operator="" crn-datasource="User" class="form-control" value="" placeholder="Telefone"> 
+      </div> 
+    </div> 
+    <div data-component="crn-datasource-filter" id="crn-datasource-filter-cpf" class="col-lg-3 col-md-3"> 
+      <div class="form-group"> 
+        <label for="textinput-filter" class="">CPF</label> 
+        <input type="text" ng-model="vars.search_cpf" mask="999.999.999-99;0" mask-placeholder="" cronapp-filter="cpf" cronapp-filter-caseinsensitive="false" cronapp-filter-autopost="false" cronapp-filter-operator="" crn-datasource="User" class="form-control" value="" placeholder="CPF" valid="cpf" data-error-message="CPF inválido!"> 
+      </div> 
+    </div>
+    <div data-component="crn-datasource-filter" id="crn-datasource-filter24301" class="col-lg-3 col-md-3"> 
+      <div class="form-group"> 
+        <label for="textinput-filter" class="">CNPJ</label> 
+        <input type="text" ng-model="vars.search_cnpj" mask="99.999.999/9999-99;0" mask-placeholder="" cronapp-filter="cnpj" cronapp-filter-caseinsensitive="false" cronapp-filter-autopost="false" cronapp-filter-operator="" crn-datasource="User" class="form-control" value="" placeholder="CNPJ"> 
+      </div> 
+    </div> 
+    <div data-component="crn-datasource-filter" id="crn-datasource-filter-legalname" class="col-md-3 col-lg-3"> 
+      <div class="form-group"> 
+        <label for="textinput-filter" class="">Nome Legal</label> 
+        <input type="text" ng-model="vars.search_legalname" mask="" mask-placeholder="" cronapp-filter="legalname" cronapp-filter-caseinsensitive="false" cronapp-filter-autopost="false" cronapp-filter-operator="" crn-datasource="User" class="form-control" value="" placeholder="Nome Legal"> 
+      </div> 
+    </div> 
+    <div data-component="crn-datasource-filter" id="crn-datasource-filter-bussinessName" class="col-lg-3 col-md-3"> 
+      <div class="form-group"> 
+        <label for="textinput-filter" class="">Nome Fantasia</label> 
+        <input type="text" ng-model="vars.search_bussinessName" mask="" mask-placeholder="" cronapp-filter="bussinessName" cronapp-filter-caseinsensitive="false" cronapp-filter-autopost="false" cronapp-filter-operator="" crn-datasource="User" class="form-control" value="" placeholder="Nome Fantasia"> 
+      </div> 
+    </div> 
+    <div data-component="crn-button-filter" class="col-md-12 col-lg-12" crn-datasource="User"> 
+      <button class="btn btn-default component-holder genClass999" cronapp-filter="" data-component="crn-button-filter" type="submit" ng-click="" xattr-size="" xattr-fullsize="" xattr-theme="btn-default"><i class="glyphicon glyphicon-search"></i> <span>Buscar Usuário</span></button> 
+    </div> 
+    <br> 
+  </fieldset> 
+</div> 
+<div data-component="crn-button" id="crn-button-564202" class=""> 
+</div> 
+<!-- fim div row para pesquisa --> 
+<!--</div>--> 
+<datasource filter="" name="User" entity="api/cronapi/query/toa5l6g415cx/" keys="id" rows-per-page="10" delete-message="Deseja remover?" class="" lazy="false" cronapp-security=""></datasource> 
+<div class="component-holder" data-component="crn-grid" id="crn-grid-User"> 
+  <div crn-datasource="User" class="" ng-hide="User.editing || User.inserting"> 
+    <table class="table  table-bordered table-hover table-striped"> 
+      <thead style=""> 
+        <tr class="table-header" style=""> 
+          <th class="active"> 
+            <div class="">
+              Id
+            </div> </th> 
+          <th class=""> 
+            <div class="">
+              Nome
+            </div> </th> 
+          <th class=""> 
+            <div class="">
+              Login
+            </div> </th> 
+           
+          <th class=""> 
+            <div class="">
+              Celular
+            </div> </th> 
+          <th class=""> 
+            <div class="">
+              Status
+            </div> </th> 
+          <th class=""> 
+            <div class="">
+              CPF
+            </div> </th> 
+          <th>
+            <div data-container="true">
+              CNPJ
+            </div></th>
+          <th class=""> 
+            <div class="">
+              Ações
+            </div> </th> 
+        </tr> 
+      </thead> 
+      <tbody style=""> 
+        <tr class="table-content" ng-repeat="rowData in datasource.data" style=""> 
+          <td class="active"> 
+            <div class="">
+               {{rowData.id }} 
+            </div> </td> 
+          <td class=""> 
+            <div class="">
+               {{rowData.name }} 
+            </div> </td> 
+          <td class=""> 
+            <div class="">
+               {{rowData.login }} 
+            </div> </td> 
+           
+          <td class=""> 
+            <div class="">
+               {{rowData.mobile | mask:'(99) 99999-9999;0' }} 
+            </div> </td> 
+          <td class=""> 
+            <div class="">
+               {{rowData.activationStatus.status}} 
+            </div> </td> 
+          <td class=""> 
+            <div class="">
+              {{rowData.cpf | mask:'999.999.999-99;0' }}
+            </div> </td> 
+          <td>
+            <div data-container="true">
+              {{rowData.cnpj | mask:'99.999.999/9999-99;0' }}
+            </div></td>
+          <td class=""> 
+            <div class=""> 
+              <!--<button class="btn btn-default btn-sm" data-component="crn-button" type="submit" ng-click="datasource.startEditing(rowData)"><i class="fa fa-edit"></i> <span>Editar</span></button>
+              <button class="btn btn-default btn-sm" data-component="crn-button" type="submit" ng-click="cronapi.util.makeCallServerBlocklyAsync('blockly.MostrarTicketsUsuario:MostrarTicketsUsuario', null, null)"><i class="fa fa-ticket"></i> <span>Tickets</span></button> 
+              <button class="btn btn-default btn-sm" data-component="crn-button" type="submit" ng-click="datasource.remove(rowData)" cronapp-security="visible : Administrators, enabled : Administrators"><i class="fa fa-times"></i> <span>Excluir</span></button> -->
+              <div class="dropup">
+                          <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            Ações
+                            <span class="caret"></span>
+                          </button>
+                          <ul class="dropdown-menu pull-right" aria-labelledby="dropdownMenu2" style="">
+                            <li><a ng-click="datasource.startEditing(rowData)"><i class="fa fa-edit"></i> <span>Editar</span></a></li>
+                            <li><a ng-click="blockly.js.blockly.Tickets.Show(rowData.id)"><i class="fa fa-ticket"></i> <span>Tickets</span></a></li>
+                            <li><a ng-click="datasource.openImage(rowData.picture)"><i class="fa fa-image"></i> <span>Ver Imagem</span></a></li>
+                            <li role="separator" class="divider"></li>
+                            <li cronapp-security="visible : Administrators"><a ng-click="datasource.remove(rowData)"><i class="fa fa-times"></i> <span>Excluir</span></a></li>
+                            
+                          </ul>
+                        </div>
+            </div> </td> 
+        </tr> 
+      </tbody> 
+    </table> 
+    <div class="table-footer-controls"> 
+      <button class="btn btn-default btn-block btn-clicked" data-component="crn-button" ng-show="datasource.hasNextPage()" ng-click="datasource.nextPage()">Carregar Mais...</button> 
+    </div> 
+  </div> 
+</div> 
+<div data-component="crn-form" id="crn-form-form-User"> 
+  <div class="form" ng-show="User.editing || User.inserting"> 
+    <form crn-datasource="User" class=""> 
+      <div class="tool-bar" ng-hide="datasource.editing || datasource.inserting"> 
+        <button class="btn btn-primary" data-component="crn-button" ng-click="datasource.startInserting()"><i class="glyphicon glyphicon-plus-sign"></i></button> 
+        <button class="btn btn-success" data-component="crn-button" ng-click="datasource.startEditing()"><i class="glyphicon glyphicon-edit"></i></button> 
+        <button class="btn btn-primary" data-component="crn-button" ng-disabled="!datasource.hasPrevious()" ng-click="datasource.previous()"><i class="glyphicon glyphicon-chevron-left"></i></button> 
+        <button class="btn btn-primary" data-component="crn-button" ng-disabled="!datasource.hasNext()" ng-click="datasource.next()"><i class="glyphicon glyphicon-chevron-right"></i></button> 
+        <button class="btn btn-primary" data-component="crn-button" ng-click="datasource.remove()"><i class="glyphicon glyphicon-trash"></i></button> 
+      </div> 
+      <div class="active-bar" ng-hide="!datasource.editing &amp;&amp; !datasource.inserting"> 
+        <!--<button class="btn btn-success" data-component="crn-button" ng-click="datasource.post()"><i class="glyphicon glyphicon-ok"></i> <span>OK</span></button>-->
+        <!--<button class="btn btn-default component-holder genClass1547" type="submit" ng-click="datasource.post()" xattr-size="" xattr-fullsize="" xattr-theme="btn-default" data-component="crn-button" id="crn-button-475586"><i class="glyphicon glyphicon-ok"></i> <span>Salvar</span></button> -->
+        <!--<button class="btn btn-danger" data-component="crn-button" ng-click="datasource.cancel()"><i class="glyphicon glyphicon-remove"></i></button>-->
+        <!--<button class="btn btn-default component-holder genClass5797" type="submit" ng-click="datasource.cancel()" xattr-size="" xattr-fullsize="" xattr-theme="btn-default" data-component="crn-button" id="crn-button-368129"><i class="glyphicon glyphicon-remove"></i> <span>Cancelar</span></button> -->
+      </div> 
+      <br> 
+      <fieldset ng-disabled="!datasource.editing &amp;&amp; !datasource.inserting"> 
+        <div data-component="crn-combobox-dynamic" id="crn-combobox-dynamic-userType" class="col-md-2 col-lg-2 col-sm-12 col-xs-12"> 
+          <div class="form-group"> 
+            <label for="combobox-dynamic-userType" class="">Tipo de Usuário</label> 
+            <!-- else for if !model.hasCronappFramework() --> 
+            <ui-select ng-model="User.active.userType" crn-datasource="Usertype" class="crn-select" id="combobox-dynamic-userType" ng-required="true" theme="bootstrap"> 
+              <ui-select-match class="" placeholder="Select...">
+                 {{$select.selected.description}} 
+              </ui-select-match> 
+              <ui-select-choices repeat="rowData in datasource.data | filter : $select.search" class="" refresh="" refresh-deplay=""> 
+                <div class="" data-container="true" ng-click="" ng-destroy="cronapi.util.makeCallServerBlocklyAsync('blockly.TipoPessoa:Selecionar', null, null)">
+                   {{rowData.description}} 
+                </div> 
+              </ui-select-choices> 
+            </ui-select> 
+            <!-- end if !model.hasCronappFramework() --> 
+          </div> 
+        </div>
+        <div data-component="crn-textinput" id="crn-textinput-name" class="col-lg-3 col-md-3 col-sm-12 col-xs-12"> 
+          <div class="form-group"> 
+            <label for="textinput-name" class="">Nome</label> 
+            <!-- else for if !model.hasCronappFramework() --> 
+            <input type="text" ng-model="User.active.name" class="form-control" id="textinput-name" placeholder="Primeiro Nome" mask="" mask-placeholder="" ng-required="true"> 
+            <!-- end if !model.hasCronappFramework() --> 
+          </div> 
+        </div> 
+        <div data-component="crn-textinput" id="crn-textinput-lastName" class="col-md-3 col-lg-3 col-sm-12 col-xs-12"> 
+          <div class="form-group"> 
+            <label for="textinput-lastName" class="">Sobrenome</label> 
+            <!-- else for if !model.hasCronappFramework() --> 
+            <input type="text" ng-model="User.active.lastName" class="form-control" id="textinput-lastName" placeholder="Último Nome" mask="" mask-placeholder="" ng-required="false"> 
+            <!-- end if !model.hasCronappFramework() --> 
+          </div> 
+        </div>
+        <div data-component="crn-textinput" id="crn-textinput-birthdate" class="col-lg-2 col-md-2 col-sm-12 col-xs-12"> 
+          <div class="form-group"> 
+            <label for="textinput-birthdate" class="">Data Nascimento</label> 
+            <!-- else for if !model.hasCronappFramework() --> 
+            <input type="date" ng-model="User.active.birthdate" class="form-control" id="textinput-birthdate" placeholder="Data Nascimento" mask="DD/MM/YYYY" mask-placeholder="" ng-required="true"> 
+            <!-- end if !model.hasCronappFramework() --> 
+          </div> 
+        </div> 
+        <div data-component="crn-textinput" id="crn-textinput-login" class="col-md-3 col-lg-3 col-sm-12 col-xs-12"> 
+          <div class="form-group"> 
+            <label for="textinput-login" class="">Email</label> 
+            <!-- else for if !model.hasCronappFramework() --> 
+            <input type="text" ng-model="User.active.login" class="form-control" id="textinput-login" placeholder="Login" mask="" mask-placeholder="" ng-required="false"> 
+            <!-- end if !model.hasCronappFramework() --> 
+          </div> 
+        </div> 
+        <div data-component="crn-textinput" id="crn-textinput-password" class="col-md-2 col-lg-2 col-sm-12 col-xs-12"> 
+          <div class="form-group"> 
+            <label for="textinput-password" class="">Senha</label> 
+            <!-- else for if !model.hasCronappFramework() --> 
+            <input type="password" ng-model="User.active.password" class="form-control" id="textinput-password" placeholder="Senha" mask="" mask-placeholder="" ng-required="false"> 
+            <!-- end if !model.hasCronappFramework() --> 
+          </div> 
+        </div> 
+        <div data-component="crn-textinput" id="crn-textinput-mobile" class="col-md-2 col-lg-2 col-sm-12 col-xs-12"> 
+          <div class="form-group"> 
+            <label for="textinput-mobile" class="">Celular</label> 
+            <!-- else for if !model.hasCronappFramework() --> 
+            <input type="text" ng-model="User.active.mobile" class="form-control" id="textinput-mobile" placeholder="Celular" mask="(99) 99999-9999;0" mask-placeholder="" ng-required="true"> 
+            <!-- end if !model.hasCronappFramework() --> 
+          </div> 
+        </div> 
+        <div data-component="crn-textinput" id="crn-textinput-landline" class="col-md-2 col-lg-2 col-sm-12 col-xs-12"> 
+          <div class="form-group"> 
+            <label for="textinput-landline" class="">Telefone</label> 
+            <!-- else for if !model.hasCronappFramework() --> 
+            <input type="text" ng-model="User.active.landline" class="form-control" id="textinput-landline" placeholder="Telefone" mask="(99) 9999-9999;0" mask-placeholder="" ng-required="false"> 
+            <!-- end if !model.hasCronappFramework() --> 
+          </div> 
+        </div> 
+        <datasource name="Activationstatus" entity="api/cronapi/crud/app.entity.ActivationStatus" keys="id" class="" dependent-by="{{User}}"></datasource> 
+        <datasource name="Usertype" entity="api/cronapi/crud/app.entity.UserType" keys="id" class="" dependent-by="{{User}}"></datasource> 
+        <div ng-if="User.active.userType.description == 'Pessoa Física'" data-component="crn-textinput" id="crn-textinput-cpf" class="col-lg-3 col-md-3 col-sm-12 col-xs-12"> 
+          <div class="form-group"> 
+            <label for="textinput-cpf" class="">CPF</label> 
+            <!-- else for if !model.hasCronappFramework() --> 
+            <input type="text" ng-model="User.active.cpf" class="form-control" id="textinput-cpf" placeholder="CPF" mask="999.999.999-99;0" mask-placeholder="" ng-required="false" data-error-message="CPF inválido!" valid="cpf" ng-blur="cronapi.util.makeCallServerBlocklyAsync('blockly.User:CheckCPF', null, null)"> 
+            <!-- end if !model.hasCronappFramework() --> 
+          </div> 
+        </div>
+        <div ng-if="User.active.userType.description == 'Pessoa Jurídica'" data-component="crn-textinput" id="crn-textinput-cnpj" class="col-lg-3 col-md-3 col-sm-12 col-xs-12"> 
+          <div class="form-group"> 
+            <label for="textinput-cnpj" class="">CNPJ</label> 
+            <!-- else for if !model.hasCronappFramework() --> 
+            <input type="text" ng-model="User.active.cnpj" class="form-control" id="textinput-cnpj" placeholder="CNPJ" mask="99.999.999/9999-99;0" mask-placeholder="" ng-required="false" data-error-message="CNPJ inválido!" valid="cnpj" ng-blur="cronapi.util.makeCallServerBlocklyAsync('blockly.User:CheckCNPJ', null, null)"> 
+            <!-- end if !model.hasCronappFramework() --> 
+          </div> 
+        </div> 
+        <div ng-if="User.active.userType.description == 'Pessoa Jurídica'" data-component="crn-textinput" id="crn-textinput-legalname" class="col-md-3 col-lg-3 col-sm-12 col-xs-12"> 
+          <div class="form-group"> 
+            <label for="textinput-legalname" class="">Nome Legal</label> 
+            <!-- else for if !model.hasCronappFramework() --> 
+            <input type="text" ng-model="User.active.legalname" class="form-control" id="textinput-legalname" placeholder="Nome Legal" mask="" mask-placeholder="" ng-required="false"> 
+            <!-- end if !model.hasCronappFramework() --> 
+          </div> 
+        </div> 
+        <div ng-if="User.active.userType.description == 'Pessoa Jurídica'" data-component="crn-textinput" id="crn-textinput-bussinessName" class="col-md-3 col-lg-3 col-sm-12 col-xs-12"> 
+          <div class="form-group"> 
+            <label for="textinput-bussinessName" class="">Nome Fantasia</label> 
+            <!-- else for if !model.hasCronappFramework() --> 
+            <input type="text" ng-model="User.active.bussinessName" class="form-control" id="textinput-bussinessName" placeholder="Nome Fantasia" mask="" mask-placeholder="" ng-required="false"> 
+            <!-- end if !model.hasCronappFramework() --> 
+          </div> 
+        </div>
+        <div ng-if="User.active.userType.description == 'Pessoa Jurídica'" class="component-holder ng-binding ng-scope col-lg-2 col-md-2 col-sm-3 col-xs-6" data-component="crn-dynamic-image" id="crn-dynamic-image-361118">
+          <div class="form-group">
+            <label for="imgFor">Logo</label>
+            <div dynamic-image="" ng-model="User.active.logo" class="dynamic-image-container" ng-required="false" max-file-size="5MB">
+              Escolha uma imagem.
+            </div>
+          </div>
+        </div> 
+        <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 genClass1373"> 
+          <div class="component-holder ng-binding ng-scope col-md-12 col-lg-12 col-sm-12 col-xs-12" data-component="crn-datasource" id="crn-datasource-332861">
+            <datasource name="Country" entity="api/cronapi/query/1hbafzvow4i7k/" keys="id" rows-per-page="1000" on-before-create="" on-after-create="" on-before-update="" on-after-update="" on-before-delete="" on-after-delete="" on-after-fill="" data-component="crn-datasource" filter=""></datasource>
+            <datasource name="State" entity="api/cronapi/query/s10jxn4uwoqc/{{User.active.country}}/" keys="id" rows-per-page="1000" on-before-create="" on-after-create="" on-before-update="" on-after-update="" on-before-delete="" on-after-delete="" on-after-fill="" data-component="crn-datasource" class="component-holder" id="crn-datasource-670085" filter="" dependent-by="{{Country}}"></datasource>
+            <datasource name="City" entity="api/cronapi/query/trzorjj3cxf6/{{User.active.state}}/" keys="id" rows-per-page="9000" on-before-create="" on-after-create="" on-before-update="" on-after-update="" on-before-delete="" on-after-delete="" on-after-fill="" data-component="crn-datasource" class="component-holder" id="crn-datasource-323846" filter="" dependent-by="{{State}}"></datasource>
+          </div>
+          <div class="component-holder ng-binding ng-scope col-md-3 col-lg-3 col-sm-12 col-xs-12" data-component="crn-combobox-dynamic" id="crn-combobox-dynamic-898019">
+            <div class="form-group">
+              <label for="">País</label>
+              <ui-select crn-datasource="Country" ng-model="User.active.country" ng-disabled="disabled" theme="bootstrap" class="crn-select" ng-required="true">
+                <ui-select-match placeholder="Select..." class="">
+                  {{$select.selected.countryName}}
+                </ui-select-match>
+                <ui-select-choices repeat="rowData as rowData in datasource.data | filter : $select.search" class="" refresh="" refresh-deplay="">
+                  <div class="">
+                    {{rowData.countryName}}
+                  </div>
+                </ui-select-choices>
+              </ui-select>
+            </div>
+          </div>
+          <div class="component-holder ng-binding ng-scope col-md-3 col-lg-3 col-sm-12 col-xs-12" data-component="crn-combobox-dynamic" id="crn-combobox-dynamic50891">
+            <div class="form-group">
+              <label for="">Estado</label>
+              <ui-select crn-datasource="State" ng-model="User.active.state" ng-disabled="disabled" theme="bootstrap" class="crn-select" ng-required="true">
+                <ui-select-match placeholder="Select..." class="">
+                  {{$select.selected.stateName}}
+                </ui-select-match>
+                <ui-select-choices repeat="rowData as rowData in datasource.data | filter : $select.search" class="" refresh="" refresh-deplay="">
+                  <div class="">
+                    {{rowData.stateName}}
+                  </div>
+                </ui-select-choices>
+              </ui-select>
+            </div>
+          </div>
+          <div class="component-holder ng-binding ng-scope col-md-3 col-lg-3 col-sm-12 col-xs-12" data-component="crn-combobox-dynamic" id="crn-combobox-dynamic39831">
+            <div class="form-group">
+              <label for="">Cidade</label>
+              <ui-select crn-datasource="City" ng-model="User.active.city" ng-disabled="disabled" theme="bootstrap" class="crn-select" ng-required="true">
+                <ui-select-match placeholder="Select..." class="">
+                  {{$select.selected.cityName}}
+                </ui-select-match>
+                <ui-select-choices repeat="rowData as rowData in datasource.data | filter : $select.search" class="" refresh="" refresh-deplay="">
+                  <div class="">
+                    {{rowData.cityName}}
+                  </div>
+                </ui-select-choices>
+              </ui-select>
+            </div>
+          </div>
+          <div data-component="crn-textinput" id="crn-textinput29841" class="col-md-2 col-lg-2 col-sm-12 col-xs-12"> 
+          </div> 
+          <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 genClass3316"> 
+            <div class="form-group col-md-3 col-lg-3"> 
+              <label for="textinput-logo" class="">CEP</label> 
+              <!-- else for if !model.hasCronappFramework() --> 
+              <input type="text" ng-model="User.active.zipCode" class="form-control" id="textinput-logo" placeholder="" mask="99999-999;0" mask-placeholder="" ng-required="true"> 
+              <!-- end if !model.hasCronappFramework() --> 
+            </div> 
+            <div class="component-holder ng-binding ng-scope col-md-6 col-lg-6" data-component="crn-button" id="crn-button-1006303">
+              <button class="btn btn-default genClass8435" type="submit" ng-click="cronapi.util.makeCallServerBlocklyAsync('blockly.CEP:Pesquisar', null, null)" xattr-size="" xattr-fullsize="" xattr-theme="btn-default" data-component="crn-button"><i class="glyphicon glyphicon-home"></i> <span>Buscar</span></button>
+            </div> 
+          </div> 
+          <div data-component="crn-textinput" id="crn-textinput69441" class="col-md-2 col-lg-2 col-sm-12 col-xs-12"> 
+            <div class="form-group"> 
+              <label for="textinput-logo" class="">Logradouro</label> 
+              <!-- else for if !model.hasCronappFramework() --> 
+              <input readonly="" type="text" ng-model="User.active.streetName" class="form-control" id="textinput-logo" placeholder="" mask="" mask-placeholder="" ng-required="true"> 
+              <!-- end if !model.hasCronappFramework() --> 
+            </div> 
+          </div>
+          <div data-component="crn-textinput" id="crn-textinput96221" class="col-md-2 col-lg-2 col-sm-12 col-xs-12"> 
+            <div class="form-group"> 
+              <label for="textinput-logo" class="">Número</label> 
+              <!-- else for if !model.hasCronappFramework() --> 
+              <input type="text" ng-model="User.active.streetNumber" class="form-control" id="textinput-logo" placeholder="" mask="" mask-placeholder="" ng-required="true"> 
+              <!-- end if !model.hasCronappFramework() --> 
+            </div> 
+          </div>
+          <div data-component="crn-textinput" id="crn-textinput58511" class="col-md-2 col-lg-2 col-sm-12 col-xs-12"> 
+            <div class="form-group"> 
+              <label for="textinput-logo" class="">Casa / Apartamento</label> 
+              <!-- else for if !model.hasCronappFramework() --> 
+              <input type="text" ng-model="User.active.unitNumber" class="form-control" id="textinput-logo" placeholder="" mask="" mask-placeholder="" ng-required="true"> 
+              <!-- end if !model.hasCronappFramework() --> 
+            </div> 
+          </div>
+          <div data-component="crn-textinput" id="crn-textinput17811" class="col-md-2 col-lg-2 col-sm-12 col-xs-12"> 
+            <div class="form-group"> 
+              <label for="textinput-logo" class="">Bairro</label> 
+              <!-- else for if !model.hasCronappFramework() --> 
+              <input readonly="" type="text" ng-model="User.active.neighbourhood" class="form-control" id="textinput-logo" placeholder="" mask="" mask-placeholder="" ng-required="true"> 
+              <!-- end if !model.hasCronappFramework() --> 
+            </div> 
+          </div>
+          <div data-component="crn-combobox-dynamic" id="crn-combobox-dynamic-activationStatus" class="col-lg-2 col-md-2 col-sm-12 col-xs-12"> 
+            <div class="form-group"> 
+              <label for="combobox-dynamic-activationStatus" class="">Status</label> 
+              <!-- else for if !model.hasCronappFramework() --> 
+              <ui-select ng-model="User.active.activationStatus" crn-datasource="Activationstatus" class="crn-select" id="combobox-dynamic-activationStatus" ng-required="true" theme="bootstrap"> 
+                <ui-select-match class="" placeholder="Select...">
+                   {{$select.selected.status}} 
+                </ui-select-match> 
+                <ui-select-choices repeat="rowData in datasource.data | filter : $select.search" class="" refresh="" refresh-deplay=""> 
+                  <div class="" data-container="true">
+                     {{rowData.status}} 
+                  </div> 
+                </ui-select-choices> 
+              </ui-select> 
+              <!-- end if !model.hasCronappFramework() --> 
+            </div> 
+          </div>
+          <div ng-if="User.active.userType.description == 'Pessoa Física'" class="component-holder ng-binding ng-scope col-md-2 col-lg-2 col-sm-4 col-xs-6" data-component="crn-dynamic-image" id="crn-dynamic-image-142041">
+            <div class="form-group">
+              <label for="imgFor">Imagem</label>
+              <div dynamic-image="" ng-model="User.active.picture" class="dynamic-image-container" ng-required="false" max-file-size="1MB">
+                Escolha uma imagem.
+              </div>
+            </div>
+          </div> 
+          <!-- NtoN  --> 
+          <!-- NtoN  end--> 
+        </div>
+      </fieldset> 
+      
+      <div class="genClass7475">
+        <button class="btn btn-default component-holder genClass1547" type="submit" ng-click="datasource.post()" xattr-size="" xattr-fullsize="" xattr-theme="btn-default" data-component="crn-button" id="crn-button-475586" ng-paste=""><i class="glyphicon glyphicon-ok"></i> <span>Salvar</span></button> 
+        <button class="btn btn-default component-holder genClass5797" type="submit" ng-click="datasource.cancel()" xattr-size="" xattr-fullsize="" xattr-theme="btn-default" data-component="crn-button" id="crn-button-368129"><i class="glyphicon glyphicon-remove"></i> <span>Cancelar</span></button> 
+      </div>
+    </form> 
+    <form> 
+       
+    </form> 
+  </div> 
+</div> 
+<!-- OneToOne modal --> 
+<div class="modal ade" id="modalRoleGrid"> 
+  <div class="modal-dialog"> 
+    <div class="modal-content"> 
+      <form> 
+        <div class="modal-header"> 
+          <button type="button" class="close" data-dismiss="modal" aria-label="{{'Home.view.Close' | translate}}"><span aria-hidden="true"></span></button> 
+          <h4 class="modal-title">Escolha uma Função</h4> 
+        </div> 
+        <datasource name="AllRoles" entity="api/cronapi/security/roles" keys="AllRoles" rows-per-page="100" on-before-create="" on-after-create="" on-before-update="" on-after-update="" on-before-delete="" on-after-delete="" on-after-fill="" data-component="crn-datasource" class="component-holder" id="crn-datasource-211673"></datasource> 
+        <div class="modal-body"> 
+          <div class="list-group list-group-sm row"> 
+            <div class="component-holder ng-binding ng-scope col-xs-12 col-sm-12 col-md-12 col-lg-12" data-component="crn-combobox-dynamic" id="crn-combobox-dynamic-453587"> 
+              <div class="form-group"> 
+                <label for="">Função</label> 
+                <ui-select crn-datasource="AllRoles" ng-model="RoleGrid.active" ng-disabled="disabled" theme="bootstrap" class="crn-select" ng-required="false"> 
+                  <ui-select-match placeholder="Select..." class="">
+                     {{$select.selected.name}} 
+                  </ui-select-match> 
+                  <ui-select-choices repeat="rowData as rowData in datasource.data | filter : $select.search" class="" refresh="" refresh-deplay=""> 
+                    <div class="">
+                       {{rowData.name}} 
+                    </div> 
+                  </ui-select-choices> 
+                </ui-select> 
+              </div> 
+            </div> 
+          </div> 
+        </div> 
+        <div class="modal-footer"> 
+          <button class="btn btn-primary" data-component="crn-button" ng-click="RoleGrid.post();" onclick="(!RoleGrid.missingRequiredField()?$('#modalRoleGrid').modal('hide'):void(0))">Adicionar</button> 
+          <button type="button" data-component="crn-button" class="btn btn-default" data-dismiss="modal">Cancelar</button> 
+        </div> 
+      </form> 
+    </div> 
+  </div> 
+</div> 
+<!-- OneToOne modal end-->

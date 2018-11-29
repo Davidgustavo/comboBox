@@ -6,11 +6,9 @@
   <div class="form-group">
     <label for="">{{'Pais' | translate}}</label>
     <ui-select crn-datasource="Pais" ng-model="datasource.active" ng-disabled="disabled" theme="bootstrap" class="crn-select" ng-required="false">
-      <ui-select-match placeholder="Select..." class="">
-        {{$select.selected.nome}}
-      </ui-select-match>
+      <ui-select-match placeholder="Selecione Pais" class="" id="vars.combo1" ng-model="vars.combo1">{{vars.combo1 = $select.selected.nome}}</ui-select-match>
       <ui-select-choices repeat="rowData as rowData in datasource.data | filter : $select.search" class="" refresh="" refresh-deplay="">
-        <div class="">
+        <div class="" ng-click="cronapi.util.makeCallServerBlocklyAsync('blockly.SelecioneCidade:selectPais', null, null)">
           {{rowData.nome}}
         </div>
       </ui-select-choices>
@@ -20,9 +18,9 @@
 <datasource name="Estado" entity="api/cronapi/query/qhhs8q11sjsm/" keys="id" rows-per-page="10000" on-before-create="" on-after-create="" on-before-update="" on-after-update="" on-before-delete="" on-after-delete="" on-after-fill="" data-component="crn-datasource" class="component-holder" id="crn-datasource-48346" dependent-by="{{}}"></datasource>
 <div class="component-holder ng-binding ng-scope" data-component="crn-combobox-dynamic" id="crn-combobox-dynamic-997967"> 
   <div class="form-group"> 
-    <label for="">Label</label> 
+    <label for="">Estado</label> 
     <ui-select crn-datasource="Estado" ng-model="datasource.active" ng-disabled="disabled" theme="bootstrap" class="crn-select" ng-required="false"> 
-      <ui-select-match placeholder="" class="" id="vars.combo" ng-model="vars.combo">{{vars.combo = $select.selected.nome}}</ui-select-match> 
+      <ui-select-match placeholder="Selecione Estado" class="" id="vars.combo" ng-model="vars.combo">{{vars.combo = $select.selected.nome}}</ui-select-match> 
       <ui-select-choices repeat="rowData as rowData in datasource.data | filter : $select.search" class="" refresh="" refresh-deplay=""> 
         <div class="" ng-click="cronapi.util.makeCallServerBlocklyAsync('blockly.SelecioneCidade:Executar', null, null)">{{rowData.nome}}</div> 
       </ui-select-choices> 

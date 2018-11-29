@@ -3,8 +3,10 @@
     <persistence-unit name="app" transaction-type="RESOURCE_LOCAL">
         <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
         <non-jta-data-source>java:comp/env/jdbc/main</non-jta-data-source>
-        <class>app.entity.Estado</class>
+        <class>app.entity.AutoIncremente</class>
         <class>app.entity.Pais</class>
+        <class>app.entity.Estado</class>
+        <class>app.entity.Pessoa</class>
         <class>app.entity.User</class>
         <class>app.entity.Role</class>
         <class>app.entity.Cidade</class>

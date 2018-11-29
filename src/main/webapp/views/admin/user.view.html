@@ -44,7 +44,7 @@
                 <td class="">
                     <div class="">
                         <button class="btn btn-default btn-sm" data-component="crn-button" type="submit" ng-click="datasource.startEditing(rowData)"><i class="fa fa-edit"></i></button>
-                        <button class="btn btn-default btn-sm" data-component="crn-button" type="submit" ng-click="datasource.remove(rowData)"><i class="fa fa-times"></i></button>
+                        <button class="btn btn-default btn-sm" data-component="crn-button" type="submit" ng-click="datasource.remove(rowData)"><i class="fa fa-times"></i></button><button class="btn btn-default btn-sm" data-component="crn-button" type="submit" ng-click="cronapi.util.makeCallServerBlocklyAsync('blockly.Parametro:Executar', null, null, rowData.id)"><i class="glyphicon glyphicon-upload"></i></button>
                     </div>
                 </td>
             </tr>
