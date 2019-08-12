@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><blockly formTarget="src/main/webapp/views/logged/Cidades.view.html" resourceType="JAVA" ruleDescription="combo" ruleName="combo" ruleSynchronous="false" ruleTimeout="300" ruleType="I">
-  <metadata scale="1" scrollx="485.29999999999995" scrolly="-99.59999999999991" target="6jLiVgY*OhZ{fcg`x3%6"/>
+  <metadata scale="1" scrollx="468.4" scrolly="-93.79999999999995" target="6jLiVgY*OhZ{fcg`x3%6"/>
   <block colour="#995ba5" id="Anb:u5+^,0vLkL9QIqn5" origintype="procedures_defreturn" output="false" tooltip="Cria uma função que possui um valor de retorno." type="procedures_defreturn" x="-350" y="130">
     <field name="NAME">selectEstado</field>
     <comment h="80" pinned="false" w="160">combo</comment>
@@ -134,7 +134,7 @@
     </statement>
     <value name="RETURN">
       <block colour="#a55b80" dependencyby="6jLiVgY*OhZ{fcg`x3%6" id="c{:ipz=!XYlwP81ii;8)" origintype="variables_get" output="true" tooltip="Retorna o valor desta variável." type="variables_get">
-        <field name="VAR">combo</field>
+        <field name="VAR">combo1</field>
       </block>
     </value>
   </block>
