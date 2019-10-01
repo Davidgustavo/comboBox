@@ -21,13 +21,16 @@ public static Var Executar() throws Exception {
 
    private Var my_100registros = Var.VAR_NULL;
    private Var cidade = Var.VAR_NULL;
+   private Var estado = Var.VAR_NULL;
 
    public Var call() throws Exception {
     my_100registros = cronapi.database.Operations.query(Var.valueOf("app.entity.Cidade"),Var.valueOf("select c from Cidade c"));
-    while (cronapi.logic.Operations.isNullOrEmpty(cronapi.database.Operations.hasElement(my_100registros)).negate().getObjectAsBoolean()) {
+    while (cronapi.database.Operations.hasElement(my_100registros).getObjectAsBoolean()) {
         cronapi.database.Operations.next(my_100registros);
         cidade = cronapi.object.Operations.getObjectField(my_100registros, Var.valueOf("nome"));
         System.out.println(cidade.getObjectAsString());
+        estado = cronapi.object.Operations.getObjectField(my_100registros, Var.valueOf("estado.nome"));
+        System.out.println(estado.getObjectAsString());
     } // end while
     return Var.VAR_NULL;
    }
