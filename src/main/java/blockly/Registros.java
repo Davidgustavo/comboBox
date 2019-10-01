@@ -7,7 +7,7 @@ import java.util.concurrent.Callable;
 
 @CronapiMetaData(type = "blockly")
 @CronappSecurity
-public class Parametro {
+public class Registros {
 
 public static final int TIMEOUT = 300;
 
@@ -15,15 +15,14 @@ public static final int TIMEOUT = 300;
  *
  * @return Var
  */
-// Parametro
+// 1000Registros
 public static Var Executar() throws Exception {
  return new Callable<Var>() {
 
    private Var item = Var.VAR_NULL;
 
    public Var call() throws Exception {
-    item = cronapi.screen.Operations.getValueOfField(Var.valueOf("vars.id"));
-    cronapi.util.Operations.callClientFunction(Var.valueOf("cronapi.screen.changeView"), Var.valueOf("#/home/logged/p"), cronapi.list.Operations.newList(Var.valueOf("id",item)));
+    item = cronapi.database.Operations.query(Var.valueOf("app.entity.Cidade"),Var.valueOf("select c from Cidade c"));
     return Var.VAR_NULL;
    }
  }.call();
