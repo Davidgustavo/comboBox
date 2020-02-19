@@ -31,7 +31,7 @@ public class Estado implements Serializable {
    * @generated
    */
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @GeneratedValue(strategy=GenerationType.IDENTITY, generator="") 
   @Column(name = "id", nullable = false, insertable=true, updatable=true)
   private java.lang.Integer id;
 

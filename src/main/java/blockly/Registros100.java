@@ -5,6 +5,7 @@ import cronapi.rest.security.CronappSecurity;
 import java.util.concurrent.Callable;
 
 
+
 @CronapiMetaData(type = "blockly")
 @CronappSecurity
 public class Registros100 {
@@ -20,19 +21,10 @@ public static Var Executar() throws Exception {
  return new Callable<Var>() {
 
    private Var my_100registros = Var.VAR_NULL;
-   private Var cidade = Var.VAR_NULL;
-   private Var estado = Var.VAR_NULL;
 
    public Var call() throws Exception {
-    my_100registros = cronapi.database.Operations.query(Var.valueOf("app.entity.Cidade"),Var.valueOf("select c from Cidade c"));
-    while (cronapi.database.Operations.hasElement(my_100registros).getObjectAsBoolean()) {
-        cronapi.database.Operations.next(my_100registros);
-        cidade = cronapi.object.Operations.getObjectField(my_100registros, Var.valueOf("nome"));
-        System.out.println(cidade.getObjectAsString());
-        estado = cronapi.object.Operations.getObjectField(my_100registros, Var.valueOf("estado.nome"));
-        System.out.println(estado.getObjectAsString());
-    } // end while
-    return Var.VAR_NULL;
+    my_100registros = cronapi.database.Operations.queryPaged(Var.valueOf("app.entity.Cidade"),Var.valueOf("select c from Cidade c"),Var.valueOf(false),Var.valueOf("limit",cronapi.list.Operations.getLast((cronapi.database.Operations.query(Var.valueOf("app.entity.Cidade"),Var.valueOf("select COUNT(c.id) from Cidade c"))))),Var.valueOf("offset",Var.valueOf(0)));
+    return my_100registros;
    }
  }.call();
 }

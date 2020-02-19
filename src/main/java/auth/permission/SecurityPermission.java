@@ -29,12 +29,16 @@ public class SecurityPermission implements Permission {
   	http.authorizeRequests().antMatchers("/public/**").permitAll();
   	http.authorizeRequests().antMatchers("/signin/**").permitAll();
   	http.authorizeRequests().antMatchers("/views/error/**").permitAll();
+  	http.authorizeRequests().antMatchers("/views/logged/david/**").permitAll();
+  	http.authorizeRequests().antMatchers("/views/logged/samuca/**").permitAll();
   	http.authorizeRequests().antMatchers("/views/login.view.html").permitAll();
   	http.authorizeRequests().antMatchers("/views/public/**").permitAll();
   
   	// role hasAuthority permission
   	http.authorizeRequests().antMatchers("/api/security/**").hasAuthority(ROLE_ADMIN_NAME);
   	http.authorizeRequests().antMatchers("/views/admin/**").hasAuthority(ROLE_ADMIN_NAME);
+
+	// role hasAnyAuthority permission
   
   	// autenticated
   	http.authorizeRequests().antMatchers("/api/rest/**").authenticated();

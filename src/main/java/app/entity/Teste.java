@@ -10,16 +10,15 @@ import cronapi.rest.security.CronappSecurity;
 
 
 /**
- * Classe que representa a tabela PAIS
+ * Classe que representa a tabela TESTE
  * @generated
  */
 @Entity
-@Table(name = "\"PAIS\"" ,uniqueConstraints=@UniqueConstraint(columnNames={
-"id" ,"nome" ,"sigla" }))
+@Table(name = "\"TESTE\"")
 @XmlRootElement
 @CronappSecurity
-@JsonFilter("app.entity.Pais")
-public class Pais implements Serializable {
+@JsonFilter("app.entity.Teste")
+public class Teste implements Serializable {
 
   /**
    * UID da classe, necessário na serialização
@@ -31,29 +30,21 @@ public class Pais implements Serializable {
    * @generated
    */
   @Id
-  @GeneratedValue(strategy=GenerationType.IDENTITY, generator="") 
   @Column(name = "id", nullable = false, insertable=true, updatable=true)
-  private java.lang.Integer id;
+  private java.lang.String id = UUID.randomUUID().toString().toUpperCase();
 
   /**
   * @generated
   */
-  @Column(name = "nome", nullable = true, unique = true, insertable=true, updatable=true)
+  @Column(name = "TESTE", nullable = true, unique = false, insertable=true, updatable=true)
   
-  private java.lang.String nome;
-
-  /**
-  * @generated
-  */
-  @Column(name = "sigla", nullable = true, unique = true, insertable=true, updatable=true)
-  
-  private java.lang.String sigla;
+  private java.lang.String teSTE;
 
   /**
    * Construtor
    * @generated
    */
-  public Pais(){
+  public Teste(){
   }
 
 
@@ -63,7 +54,7 @@ public class Pais implements Serializable {
    * @generated
    */
   
-  public java.lang.Integer getId(){
+  public java.lang.String getId(){
     return this.id;
   }
 
@@ -72,48 +63,28 @@ public class Pais implements Serializable {
    * @param id id
    * @generated
    */
-  public Pais setId(java.lang.Integer id){
+  public Teste setId(java.lang.String id){
     this.id = id;
     return this;
   }
 
   /**
-   * Obtém nome
-   * return nome
+   * Obtém teSTE
+   * return teSTE
    * @generated
    */
   
-  public java.lang.String getNome(){
-    return this.nome;
+  public java.lang.String getTeSTE(){
+    return this.teSTE;
   }
 
   /**
-   * Define nome
-   * @param nome nome
+   * Define teSTE
+   * @param teSTE teSTE
    * @generated
    */
-  public Pais setNome(java.lang.String nome){
-    this.nome = nome;
-    return this;
-  }
-
-  /**
-   * Obtém sigla
-   * return sigla
-   * @generated
-   */
-  
-  public java.lang.String getSigla(){
-    return this.sigla;
-  }
-
-  /**
-   * Define sigla
-   * @param sigla sigla
-   * @generated
-   */
-  public Pais setSigla(java.lang.String sigla){
-    this.sigla = sigla;
+  public Teste setTeSTE(java.lang.String teSTE){
+    this.teSTE = teSTE;
     return this;
   }
 
@@ -124,7 +95,7 @@ public class Pais implements Serializable {
   public boolean equals(Object obj) {
     if (this == obj) return true;
     if (obj == null || getClass() != obj.getClass()) return false;
-    Pais object = (Pais)obj;
+    Teste object = (Teste)obj;
     if (id != null ? !id.equals(object.id) : object.id != null) return false;
     return true;
   }
