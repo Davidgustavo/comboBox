@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><Context>
     <Resource accessToUnderlyingConnectionAllowed="true" driverClassName="org.h2.Driver" logAbandoned="true" name="jdbc/main" password="root" profile="DEV" removeAbandoned="" removeAbandonedTimeout="60" schema="" type="javax.sql.DataSource" url="jdbc:h2:file:~/f8a6db0d461a4900b80cd21503913250;AUTO_SERVER=TRUE;DATABASE_TO_UPPER=FALSE;ALIAS_COLUMN_NAME=TRUE" username="root"/>
+    <Resource accessToUnderlyingConnectionAllowed="false" driverClassName="org.postgresql.Driver" logAbandoned="true" name="jdbc/pstg" password="unlEFF8hobJTSA1M_ap8Db7IHQAP33wP" profile="DEV" removeAbandoned="false" removeAbandonedTimeout="60" schema="" type="javax.sql.DataSource" url="jdbc:postgresql://salt.db.elephantsql.com:5432/vyqhdkuu?charSet=UTF-8" username="vyqhdkuu"/>
     <Profile value="DEV"/>
+    <Profile value="PROD"/>
 </Context>
