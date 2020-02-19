@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?><blockly formTarget="" resourceType="JS" ruleDescription="Split" ruleName="Split" ruleSynchronous="false" ruleTimeout="" ruleType="I">
+  <metadata scale="1" scrollx="488.40000000000043" scrolly="7.000000000000057" target="Anb:u5+^,0vLkL9QIqn5"/>
+  <block colour="#995ba5" id="Anb:u5+^,0vLkL9QIqn5" origintype="procedures_defreturn" output="false" tooltip="Cria uma função que possui um valor de retorno." type="procedures_defreturn" x="-350" y="130">
+    <field name="NAME">Executar</field>
+    <comment h="80" pinned="false" w="160">Split</comment>
+    <statement name="STACK">
+      <block colour="#0088ee" dependencyby="Anb:u5+^,0vLkL9QIqn5" id="6m?;Sn_#kik)EMX2TyzZ" origintype="variables_set" output="false" tooltip="Define esta variável para o valor da entrada." type="variables_set">
+        <field name="VAR">item</field>
+        <value name="VALUE">
+          <block colour="#745ba5" dependencyby="Anb:u5+^,0vLkL9QIqn5" id="CF3r$|]@+J/!z~SghI9m" origintype="lists_split" output="true" tooltip="function() {&#10;      var mode = thisBlock.getFieldValue('MODE');&#10;      if(mode == 'SPLIT') {&#10;        return Blockly.Msg.LISTS_SPLIT_TOOLTIP_SPLIT;&#10;      }&#10;      else if(mode == 'JOIN') {&#10;        return Blockly.Msg.LISTS_SPLIT_TOOLTIP_JOIN;&#10;      }&#10;      throw 'Unknown mode: ' + mode;&#10;    }" type="lists_split">
+            <mutation mode="SPLIT"/>
+            <field name="MODE">SPLIT</field>
+            <value name="INPUT">
+              <block colour="#5ba593" dependencyby="Anb:u5+^,0vLkL9QIqn5" id="UQux2ztNstG@y9CWz4H#" origintype="text" output="true" tooltip="function () { [native code] }" type="text">
+                <field name="TEXT">TESTE
+TESTE
+TESTE</field>
+              </block>
+            </value>
+            <value name="DELIM">
+              <shadow colour="#5ba593" dependencyby="Anb:u5+^,0vLkL9QIqn5" id="A8$S?*N;)pS`qs:8Q:yY" origintype="text" output="true" tooltip="function () { [native code] }" type="text">
+                <field name="TEXT">,</field>
+              </shadow>
+              <block colour="#5ba58c" dependencyby="Anb:u5+^,0vLkL9QIqn5" id="fmlKEg]Y_AFm!CVA(/v?" multilayer="false" namespace="cronapi.text.newline" origintype="procedures_callreturn" output="true" returntype="ObjectType.STRING" tooltip="%3Cdiv%20class=%22name%22%3E%3Cstrong%3ENome:%3C/strong%3E%3Cdiv%3ENova%20linha%3C/div%3E%3C/div%3E%3Cdiv%20class=%22description%22%3E%3Cstrong%3EDescri%C3%A7%C3%A3o:%3C/strong%3E%3Cdiv%3EFun%C3%A7%C3%A3o%20que%20retorna%20uma%20nova%20linha%20'%5Cn'%3C/div%3E%3C/div%3E%3Cdiv%20class=%22return%22%3E%3Cstrong%3ERetorno:%3C/strong%3E%3Cdiv%3E%3Cspan%3E%20-%20Texto%3C/span%3E%3C/div%3E%3C/div%3E%3Cdiv%20class=%22link%22%3E%3Cstrong%3EAjuda:%3C/strong%3E%3Cdiv%20class=%22tooltip-link%22%3E%3Ca%20target=%22_blank%22%20href=%22https://docs.cronapp.io/display/CRON2/cronapi.text.newline%22%3Ehttps://docs.cronapp.io/display/CRON2/cronapi.text.newline%3C/a%3E%3C/div%3E%3C/div%3E" type="procedures_callreturn">
+                <mutation name="{{cronapi.text.newline}}" return-raw-type="undefined"/>
+              </block>
+            </value>
+          </block>
+        </value>
+        <next>
+          <block colour="#5ba55b" dependencyby="Anb:u5+^,0vLkL9QIqn5" id="kTGE,whUVvIL+Fhb=7EM" origintype="controls_forEach" output="false" tooltip="Faça algumas instruções várias vezes." type="controls_forEach">
+            <field name="VAR">i</field>
+            <value name="LIST">
+              <block colour="#0088ee" dependencyby="Anb:u5+^,0vLkL9QIqn5" id="nteXBI1^ZQ8x9.N*Z}30" origintype="variables_get" output="true" tooltip="Retorna o valor desta variável." type="variables_get">
+                <field name="VAR">item</field>
+              </block>
+            </value>
+            <statement name="DO">
+              <block colour="#5ba58c" dependencyby="Anb:u5+^,0vLkL9QIqn5" id="gmph[]sh}3O7Gb{:p}mR" origintype="text_print" output="false" tooltip="Imprime o texto, número ou valor especificado." type="text_print">
+                <value name="TEXT">
+                  <shadow colour="#5ba593" dependencyby="Anb:u5+^,0vLkL9QIqn5" id="6FLm?H.eKx(PYc=r*QBD" origintype="text" output="true" tooltip="function () { [native code] }" type="text">
+                    <field name="TEXT">Quebra</field>
+                  </shadow>
+                </value>
+                <next>
+                  <block colour="#5ba58c" dependencyby="Anb:u5+^,0vLkL9QIqn5" id="J2A0Pf+,{Pi]0FNy@I9N" origintype="text_print" output="false" tooltip="Imprime o texto, número ou valor especificado." type="text_print">
+                    <value name="TEXT">
+                      <shadow colour="#5ba593" dependencyby="Anb:u5+^,0vLkL9QIqn5" id="!yTI~HK3^:_q_}Q7R.=t" origintype="text" output="true" tooltip="function () { [native code] }" type="text">
+                        <field name="TEXT">abc</field>
+                      </shadow>
+                      <block colour="#0088ee" dependencyby="Anb:u5+^,0vLkL9QIqn5" id="#Q~TNa}9=z3@QS{?YDbI" origintype="variables_get" output="true" tooltip="Retorna o valor desta variável." type="variables_get">
+                        <field name="VAR">i</field>
+                      </block>
+                    </value>
+                  </block>
+                </next>
+              </block>
+            </statement>
+          </block>
+        </next>
+      </block>
+    </statement>
+  </block>
+</blockly>

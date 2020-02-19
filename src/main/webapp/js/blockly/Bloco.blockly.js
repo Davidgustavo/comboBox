@@ -7,7 +7,6 @@ window.blockly.js.blockly.Bloco = window.blockly.js.blockly.Bloco || {};
  * Bloco
  */
 window.blockly.js.blockly.Bloco.Executar = function() {
-	this.cronapi.screen.changeValueOfField("Pessoa.active.user",
-			this.cronapi.util
-					.callServerBlockly('blockly.UserID:Executar', null));
+
+  this.cronapi.util.executeJavascriptNoReturn('var exemplo = \"C:\\\\Program Files\\\\Apache Software Foundation\\\\\";\nvar resultado = exemplo.replace(/\\\\/gi, \"/\");\nresultado = exemplo.replace(\"/\", /\"\\\"/gi);\nconsole.log(resultado);');
 }

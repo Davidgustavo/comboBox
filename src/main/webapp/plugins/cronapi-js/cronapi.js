@@ -1,3 +1,21 @@
+if (window.fixedTimeZone === undefined || window.fixedTimeZone === null) {
+  window.fixedTimeZone = true;
+}
+
+if (window.timeZone === undefined || window.timeZone === null) {
+  window.timeZone = "UTC";
+}
+
+if (window.timeZoneOffset === undefined || window.timeZoneOffset === null) {
+  window.timeZoneOffset = 0;
+}
+
+window.systemTimeZoneOffset = window.timeZoneOffset;
+
+if (!window.fixedTimeZone) {
+  window.timeZoneOffset = moment().utcOffset();
+}
+
 (function() {
   'use strict';
 
@@ -11,6 +29,10 @@
   }.bind(this);
 
   this.cronapi = {};
+
+  this.cronapi.toDate = function(value) {
+    return new Date(value);
+  }
 
   var getDatasource = function(ds) {
     if (typeof ds == 'string') {
@@ -26,13 +48,13 @@
 
   this.cronapi.evalInContext = function(js) {
     var result = eval('this.cronapi.doEval('+js+')');
-    if (result && result.commands) {
-      for (var i=0;i<result.commands.length;i++) {
-        var func = eval(result.commands[i].function);
-        func.apply(this, result.commands[i].params);
+    if (result) {
+      if (result.commands) {
+        for (var i = 0; i < result.commands.length; i++) {
+          var func = eval(result.commands[i].function);
+          func.apply(this, result.commands[i].params);
+        }
       }
-    }
-    if (result && result.value) {
       return result.value;
     }
   }
@@ -43,7 +65,17 @@
         return this;
       },
       run: function() {
-        var bk = eval('blockly.'+pack);
+        var bk;
+        try {
+          bk = eval('blockly.'+pack);
+        } catch(e) {
+          //
+        }
+
+        if (!bk) {
+          bk = eval(pack);
+        }
+
         return bk.apply(this, arguments);
       }.bind(this)
     }
@@ -98,9 +130,11 @@
               serverMap[key] = error;
             }
           });
+          if (error)
+            this.cronapi.$scope.Notification.error(error);
         }.bind(this);
 
-        var args = [blocklyName, error, success];
+        var args = [blocklyName, success, error];
 
         for (var i = 0;i <arguments.length;i++) {
           args.push(arguments[i]);
@@ -207,10 +241,10 @@
       else if (pattern.test(value)) {
         var splited = pattern.exec(value);
         var userLang = (navigator.language || navigator.userLanguage)
-            .split("-")[0];
+        .split("-")[0];
 
         if (userLang == "pt" || userLang == "en") {
-          var functionToCall = eval(userLang + "Date");
+          var functionToCall = eval("cronapi.internal." + userLang + "Date");
           return functionToCall(splited);
         } else
           return new Date(value);
@@ -304,7 +338,8 @@
       headers : {
         'Content-Type' : 'application/json',
         'X-AUTH-TOKEN' : token,
-        'toJS' : true
+        'toJS' : true,
+        'timezone': moment().utcOffset()
       },
       success : callbackSuccess,
       error : callbackError
@@ -325,14 +360,31 @@
       }
     }
 
-    for (var key in this.cronapi.$scope.vars) {
-      if (this.cronapi.$scope.vars[key]) {
-        if (!fields.vars) {
-          fields.vars = {};
-        }
-        fields.vars[key] = this.cronapi.$scope.vars[key];
+    var scope = this.cronapi.$scope;
+    var recursiveLookup = function(scope) {
+      var fieldValue;
+      try {
+        fieldValue = eval(scope.vars);
       }
-    }
+      catch (e) {
+      }
+      if(fieldValue && Object.keys(fieldValue).length !== 0) {
+        var keys = Object.keys(fieldValue);
+        keys.forEach(function(key){
+          if (fieldValue[key] !== undefined && fieldValue[key] !== null) {
+            if (!fields.vars) {
+              fields.vars = {};
+            }
+            fields.vars[key] = fieldValue[key];
+          }
+        });
+      }
+      else if(scope && scope.$parent ) {
+        return recursiveLookup(scope.$parent);
+      }
+      return;
+    };
+    recursiveLookup(scope);
 
     for (var key in this.cronapi.$scope.params) {
       if (this.cronapi.$scope.params[key]) {
@@ -433,6 +485,38 @@
 
   /**
    * @type function
+   * @name {{language}}
+   * @nameTags language, i18n, idioma, linguagem, locale
+   * @description {{languageDescription}}
+   * @returns {ObjectType.STRING}
+   */
+  this.cronapi.util.language = function() {
+    var locale = (window.navigator.userLanguage || window.navigator.language || 'pt_br').replace('-', '_');
+    return locale;
+  };
+
+  /**
+   * @type function
+   * @name {{share}}
+   * @nameTags share, compartilhar, enviar, abrir como
+   * @description {{shareDescription}}
+   * @param {ObjectType.STRING} title {{shareParam0}}
+   * @param {ObjectType.STRING} text {{shareParam1}}
+   * @param {ObjectType.STRING} url {{shareParam2}}
+   * @returns {ObjectType.STRING}
+   */
+  this.cronapi.util.share = function(title, text, url) {
+    navigator.share({
+      title: title,
+      text: text,
+      url: url
+    }).then(() => console.log('Successful share'))
+        .catch(error => console.log('Error sharing:', error));
+    return value;
+  };
+
+  /**
+   * @type function
    * @name {{callServerBlockly}}
    * @nameTags callServerBlockly
    * @description {{functionToCallServerBlockly}}
@@ -471,7 +555,8 @@
       headers : {
         'Content-Type' : 'application/json',
         'X-AUTH-TOKEN' : token,
-        'toJS' : true
+        'toJS' : true,
+        'timezone': moment().utcOffset()
       }
     });
 
@@ -488,6 +573,31 @@
       throw message;
     }
     return result;
+  };
+
+    /**
+     * @type function
+     * @name {{callServerBlocklyAsync}}
+     * @nameTags callServerBlocklyAsync
+     * @description {{callServerBlocklyAsync}}
+     * @param {ObjectType.STRING} classNameWithMethod {{classNameWithMethod}}
+     * @param {ObjectType.OBJECT} callback {{callbackFinish}}
+     * @param {ObjectType.LIST} params {{params}}
+     * @wizard procedures_callblockly_callreturn_async
+     * @returns {ObjectType.OBJECT}
+     */
+  this.cronapi.util.callServerBlocklyAsynchronous = function(classNameWithMethod , callback , params) {
+    if(classNameWithMethod != '' && typeof callback == 'function'){
+      var params = [];
+      params.push(classNameWithMethod);
+      params.push(callback);
+      params.push(callback);
+      var idx = 2;
+      for(idx; idx < arguments.length ; idx ++){
+        params.push(arguments[idx]);
+      };
+      this.cronapi.util.makeCallServerBlocklyAsync.apply(this,params);
+    }
   };
 
   /**
@@ -556,6 +666,94 @@
 
   /**
    * @type function
+   * @name {{getURLFromOthersName}}
+   * @description {{getURLFromOthersDescription}}
+   * @nameTags URL|API|Content|Download|Address|Endereco|Conteudo
+   * @param {ObjectType.STRING} method {{HTTPMethod}}
+   * @param {ObjectType.STRING} contentType {{contentType}}
+   * @param {ObjectType.STRING} url {{URLAddress}}
+   * @param {ObjectType.STRING} params {{paramsHTTP}}
+   * @param {ObjectType.STRING} headers {{headers}}
+   * @param {ObjectType.STRING} success {{success}}
+   * @param {ObjectType.STRING} error {{error}}
+   */
+  this.cronapi.util.getURLFromOthers = function(/** @type {ObjectType.STRING} @description {{HTTPMethod}} @blockType util_dropdown @keys GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS|TRACE @values GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS|TRACE  */  method , /** @type {ObjectType.STRING} @description {{HTTPMethod}} @blockType util_dropdown @keys application/x-www-form-urlencoded|application/json @values application/x-www-form-urlencoded|application/json  */  contentType , /** @type {ObjectType.STRING} @description {{URLAddress}} */ url, /** @type {ObjectType.OBJECT} @description {{paramsHTTP}} */ params, /** @type {ObjectType.OBJECT} @description {{headers}} */ headers, /** @type {ObjectType.STATEMENTSENDER} @description {{success}} */ success, /** @type {ObjectType.STATEMENTSENDER} @description {{error}} */  error ) {
+
+    var header = Object.create(headers);
+    header["Content-Type"] = contentType;
+    // Angular has a .run that inject X-AUTH-TOKEN, so we use JQuery
+    $.ajax({
+      method : method,
+      url : url,
+      data: params,
+      headers: header
+    }).success(success.bind(this)).error(error.bind(this));
+
+  };
+
+
+  /**
+   * @type function
+   * @name {{getUserToken}}
+   * @nameTags token | auth | autenticaçào | armazenamento
+   * @description {{getUserTokenDesc}}
+   * @returns {ObjectType.STRING}
+   */
+  this.cronapi.util.getUserToken = function() {
+    return JSON.parse(window.localStorage.getItem('_u')).token;
+  };
+
+  /**
+   * @type function
+   * @name {{setSessionStorage}}
+   * @nameTags storage | session | sessão | armazenamento
+   * @description {{setSessionStorageDesc}}
+   * @param {ObjectType.STRING} key {{key}}
+   * @param {ObjectType.STRING} value {{value}}
+   */
+  this.cronapi.util.setSessionStorage = function(key, value) {
+    window.sessionStorage.setItem(key, value);
+  };
+
+  /**
+   * @type function
+   * @name {{getSessionStorage}}
+   * @nameTags storage | session | sessão | armazenamento
+   * @description {{getSessionStorageDesc}}
+   * @param {ObjectType.STRING} key {{key}}
+   * @returns {ObjectType.OBJECT}
+   */
+  this.cronapi.util.getSessionStorage = function(key) {
+    return window.sessionStorage.getItem(key);
+  };
+
+  /**
+   * @type function
+   * @name {{setLocalStorage}}
+   * @nameTags storage | session | sessão | armazenamento
+   * @description {{setLocalStorageDesc}}
+   * @param {ObjectType.STRING} key {{key}}
+   * @param {ObjectType.STRING} value {{value}}
+   */
+  this.cronapi.util.setLocalStorage = function(key, value) {
+    window.localStorage.setItem(key, value);
+  };
+
+  /**
+   * @type function
+   * @name {{getLocalStorage}}
+   * @nameTags storage | session | sessão | armazenamento
+   * @description {{getLocalStorageDesc}}
+   * @param {ObjectType.STRING} key {{key}}
+   * @returns {ObjectType.STRING}
+   */
+  this.cronapi.util.getLocalStorage = function(key) {
+    return window.localStorage.getItem(key);
+  };
+
+
+  /**
+   * @type function
    * @name {{executeAsynchronousName}}
    * @nameTags Executar|Assíncrono|Execute| Asynchronous
    * @description {{executeAsynchronousDescription}}
@@ -575,15 +773,20 @@
    * @param {ObjectType.LONG} initial_time {{scheduleExecutionParam1}}
    * @param {ObjectType.LONG} interval_time {{scheduleExecutionParam2}}
    * @param {ObjectType.STRING} measurement_unit {{scheduleExecutionParam3}}
+   * @param {ObjectType.BOOLEAN} stopExecutionAfterScopeDestroy {{stopExecutionAfterScopeDestroyLabel}}
    */
-  this.cronapi.util.scheduleExecution = function( /** @type {ObjectType.STATEMENT} @description {{statement}} */ statements ,  /** @type {ObjectType.LONG} */  initial_time ,  /** @type {ObjectType.LONG} */  interval_time , /** @type {ObjectType.STRING} @description {{scheduleExecutionParam3}} @blockType util_dropdown @keys seconds|milliseconds|minutes|hours @values {{seconds}}|{{millisecondss}}|{{minutes}}|{{hours}}  */ measurement_unit ) {
+  this.cronapi.util.scheduleExecution = function( /** @type {ObjectType.STATEMENT} @description {{statement}} */ statements ,  /** @type {ObjectType.LONG} */  initial_time ,  /** @type {ObjectType.LONG} */  interval_time , /** @type {ObjectType.STRING} @description {{scheduleExecutionParam3}} @blockType util_dropdown @keys seconds|milliseconds|minutes|hours @values {{seconds}}|{{millisecondss}}|{{minutes}}|{{hours}}  */ measurement_unit, /** @type {ObjectType.BOOLEAN} @description {{stopExecutionAfterScopeDestroyLabel}} @blockType util_dropdown @keys true|false @values {{true}}|{{false}}  */  stopExecutionAfterScopeDestroy ) {
+
+    stopExecutionAfterScopeDestroy = stopExecutionAfterScopeDestroy || true;
+    stopExecutionAfterScopeDestroy = (stopExecutionAfterScopeDestroy === 'true' || stopExecutionAfterScopeDestroy === true);
+
     var factor = 1;
 
-    if (measurement_unit == 'seconds') {
+    if (measurement_unit === 'seconds') {
       factor = 1000;
-    } else if(measurement_unit =='minutes') {
+    } else if(measurement_unit ==='minutes') {
       factor = 60000;
-    } else if(measurement_unit =='hours') {
+    } else if(measurement_unit ==='hours') {
       factor = 3600000;
     }
 
@@ -597,18 +800,20 @@
       intervalId = setInterval(statements , interval_time) ;
     }.bind(this), initial_time);
 
-    this.$on('$destroy', function() {
-      try { clearTimeout(timeoutId); } catch(e) {}
-      try { clearInterval(intervalId); } catch(e) {}
-    });
+    if(stopExecutionAfterScopeDestroy){
+      this.$on('$destroy', function() {
+        try { clearTimeout(timeoutId); } catch(e) {}
+        try { clearInterval(intervalId); } catch(e) {}
+      });
+    }
 
   };
 
   /**
    * @type internal
    */
-  this.cronapi.util.openReport = function(name, params) {
-    this.cronapi.$scope.getReport(name, params);
+  this.cronapi.util.openReport = function(name, params, config) {
+    this.cronapi.$scope.getReport(name, params, config);
   };
 
   /**
@@ -665,8 +870,25 @@
       if (field && field.length > 0) {
         if (field.indexOf('.active.') > -1)
           return eval(field);
-        else
-          return eval('this.'+field);
+        else{
+            var scope = eval('this');
+            var recursiveLookup = function(scope) {
+              var fieldValue;
+              try {
+                fieldValue = eval("scope." + field);
+              }
+              catch (e) {
+              }
+              if(fieldValue !== undefined || fieldValue !== null){
+                return fieldValue;
+              }
+              else if(scope && scope.$parent ) {
+                return recursiveLookup(scope.$parent);
+              }
+              return '';
+            };
+            return recursiveLookup(scope);
+        }
       }
       return '';
     }
@@ -703,6 +925,7 @@
    * @type function
    * @name {{screenNotifyName}}
    * @description {{screenNotifyDescription}}
+   * @nameTags show | exibir | exibe | notification | notificação
    * @param {ObjectType.STRING} type {{screenNotifyParam0}}
    * @param {ObjectType.STRING} message {{screenNotifyParam1}}
    * @wizard notify_type
@@ -780,6 +1003,40 @@
 
   /**
    * @type function
+   * @name {{firstRecordName}}
+   * @nameTags firstRecord
+   * @description {{firstRecordDescription}}
+   * @param {ObjectType.STRING} datasource {{firstRecordParam0}}
+   * @multilayer true
+   */
+
+  this.cronapi.screen.firstRecord = function(/** @type {ObjectType.OBJECT} @blockType datasource_from_screen*/ datasource) {
+    getDatasource(datasource).$apply( new function(){
+      var ds = getDatasource(datasource);
+      ds.cursor = -1;
+      ds.next();
+    } );
+  };
+
+  /**
+   * @type function
+   * @name {{lastRecordName}}
+   * @nameTags lastRecord
+   * @description {{lastRecordDescription}}
+   * @param {ObjectType.STRING} datasource {{lastRecordParam0}}
+   * @multilayer true
+   */
+
+  this.cronapi.screen.lastRecord = function(/** @type {ObjectType.OBJECT} @blockType datasource_from_screen*/ datasource) {
+    getDatasource(datasource).$apply( new function(){
+      var ds = getDatasource(datasource);
+      ds.cursor = ds.data.length-2;
+      ds.next();
+    } );
+  };
+
+  /**
+   * @type function
    * @name {{removeRecordName}}
    * @nameTags removeRecord
    * @description {{removeRecordDescription}}
@@ -848,7 +1105,12 @@
    * @multilayer true
    */
   this.cronapi.screen.filter = function(/** @type {ObjectType.OBJECT} @blockType datasource_from_screen*/ datasource,/** @type {ObjectType.STRING}*/ path) {
-    getDatasource(datasource).filter("/"+path);
+    if(getDatasource(datasource).isOData()){
+      getDatasource(datasource).search(path);
+    }
+    else{
+      getDatasource(datasource).filter('/' + path);
+    }
   };
 
   /**
@@ -865,19 +1127,68 @@
     try {
       var queryString = '';
 
+      var paramsStopEncode = {};
+      paramsStopEncode['%24'] = '$';
+
+      function decodeCharParam(value) {
+        if (value) {
+          for (var param in paramsStopEncode) {
+            var regex = eval('/' + param + '/g' );
+            value = value.replace(regex, paramsStopEncode[param]);
+          }
+        }
+        return value;
+      }
+
       if (typeof params != 'undefined') {
         for (var i in Object.keys(params)) {
           var k = Object.keys(params[i])[0];
-          var v = String(Object.values(params[i])[0]);
-          if (queryString != null) {
+
+          var paramValue = Object.values(params[i])[0];
+
+          if (paramValue instanceof Date) {
+            paramValue = paramValue.toISOString();
+          }
+
+          var v = String(paramValue);
+          if (queryString) {
             queryString += "&";
           }
-          queryString += encodeURIComponent(k) + "=" + encodeURIComponent(v);
-
+          queryString += decodeCharParam(encodeURIComponent(k)) + "=" + encodeURIComponent(v);
         }
       }
 
+      let existRoute = (view) => {
+        if (this.cronapi.$scope && this.cronapi.$scope.$state) {
+          let $states = this.cronapi.$scope.$state.get();
+          let viewSplited = view.split("/").slice(2);
+          let templateToFind = "views/" + viewSplited.join("/") + ".view.html";
+
+          $states.forEach((s)=> {
+            let templateUrl  = s.templateUrl;
+            if (templateUrl instanceof Function)  {
+              let regexExecuted = /('|")[a-z0-9/.]+('|")/gim.exec(templateUrl.toString());
+              if (regexExecuted !== null && regexExecuted !== undefined && regexExecuted[0])
+                templateUrl = regexExecuted[0].replace(/'/g, "");
+            }
+            if (templateUrl === templateToFind)
+              view = "#" + s.url;
+          })
+        }
+        return view;
+      };
+
+      var oldHash = window.location.hash;
+      view = existRoute(view);
       window.location.hash = view + (queryString?"?"+queryString:"");
+
+      var oldHashToCheck = oldHash + (oldHash.indexOf("?") > -1 ? "": "?");
+      var viewToCheck = view + (view.indexOf("?") > -1 ? "": "?");
+
+      if(oldHashToCheck.indexOf(viewToCheck) >= 0){
+        window.location.reload();
+      }
+
     }
     catch (e) {
       alert(e);
@@ -999,7 +1310,7 @@
       $('#'+id).show();
     }
   };
-  
+
   /**
    * @type function
    * @name {{setActiveTab}}
@@ -1010,15 +1321,15 @@
    * @multilayer true
    */
   this.cronapi.screen.setActiveTab = function(/** @type {ObjectType.OBJECT} @blockType ids_from_screen*/ id) {
-      this.cronapi.$scope.safeApply( function(){
-        if( $('#'+id).attr('data-target') === undefined){
-           $( '[data-target="#'+ id + '"]' ).tab('show');
-        }
-        else{
-          $('#'+id).tab('show');
-        }
-        
-      });
+    this.cronapi.$scope.safeApply( function(){
+      if( $('#'+id).attr('data-target') === undefined){
+        $( '[data-target="#'+ id + '"]' ).tab('show');
+      }
+      else{
+        $('#'+id).tab('show');
+      }
+
+    });
   };
 
   /**
@@ -1040,9 +1351,9 @@
 
   /**
    * @type function
-   * @name {{showModal}}
+   * @name {{showMobileModal}}
    * @nameTags Show| Modal| Exibir| Mostrar
-   * @description {{showModalDesc}}
+   * @description {{showMobileModalDesc}}
    * @platform M
    * @param {ObjectType.STRING} component {{ComponentParam}}
    * @multilayer true
@@ -1061,9 +1372,9 @@
 
   /**
    * @type function
-   * @name {{hideModal}}
+   * @name {{hideMobileModal}}
    * @nameTags Hide| Modal| Esconder | Fechar
-   * @description {{hideModalDesc}}
+   * @description {{hideMobileModalDesc}}
    * @platform M
    * @param {ObjectType.STRING} component {{ComponentParam}}
    * @multilayer true
@@ -1091,6 +1402,46 @@
       return modal.isShown();
     }
     return false;
+  };
+
+  /**
+   * @type function
+   * @name {{showLoading}}
+   * @nameTags Show| Loading| Exibir | Carregamento
+   * @description {{showLoadingDesc}}
+   * @platform M
+   */
+  this.cronapi.screen.showLoading = function() {
+    this.cronapi.$scope.$ionicLoading.show({
+      content : 'Loading',
+      animation : 'fade-in',
+      showBackdrop : true,
+      maxWidth : 200,
+      showDelay : 0
+    });
+  };
+
+  /**
+   * @type function
+   * @name {{hideLoading}}
+   * @nameTags Hide| Loading| Esconder | Carregamento
+   * @description {{hideLoadingDesc}}
+   * @platform M
+   */
+  this.cronapi.screen.hide = function() {
+    this.cronapi.$scope.$ionicLoading.hide();
+  };
+
+  /**
+   * @type function
+   * @name {{getHostapp}}
+   * @nameTags Hostapp
+   * @description {{getHostappDesc}}
+   * @platform M
+   * @returns {ObjectType.String}
+   */
+  this.cronapi.screen.getHostapp = function() {
+    return window.hostApp;
   };
 
 
@@ -1140,7 +1491,26 @@
    * @multilayer true
    */
   this.cronapi.screen.disableComponent = function(/** @type {ObjectType.OBJECT} @blockType ids_from_screen*/ id) {
-    $.each( $('#'+id).find('*').addBack(), function(index, value){ $(value).prop('disabled',true); });
+      let injector = window.angular.element('body').injector();
+      let $rootScope = injector.get('$rootScope');
+
+      let waitAngularReady = () => {
+          if ($rootScope.$$phase !== '$apply' && $rootScope.$$phase !== '$digest') {
+              if($('#'+id).data("kendoComboBox")){
+                  $('#'+id).data("kendoComboBox").enable(false);
+              }
+              else if($('#'+id).data("kendoDropDownList")){
+                  $('#'+id).data("kendoDropDownList").enable(false);
+              }
+              else{
+                  $.each( $('#'+id).find('*').addBack(), function(index, value){ $(value).prop('disabled',true); });
+              }
+          }
+          else {
+              setTimeout( () => waitAngularReady(), 200);
+          }
+      };
+      waitAngularReady();
   };
 
   /**
@@ -1152,7 +1522,26 @@
    * @multilayer true
    */
   this.cronapi.screen.enableComponent = function(/** @type {ObjectType.OBJECT} @blockType ids_from_screen*/ id) {
-    $.each( $('#'+id).find('*').addBack(), function(index, value){ $(value).prop('disabled',false); });
+      let injector = window.angular.element('body').injector();
+      let $rootScope = injector.get('$rootScope');
+
+      let waitAngularReady = () => {
+          if ($rootScope.$$phase !== '$apply' && $rootScope.$$phase !== '$digest') {
+              if($('#'+id).data("kendoComboBox")){
+                  $('#'+id).data("kendoComboBox").enable(true);
+              }
+              else if($('#'+id).data("kendoDropDownList")){
+                  $('#'+id).data("kendoDropDownList").enable(true);
+              }
+              else{
+                  $.each( $('#'+id).find('*').addBack(), function(index, value){ $(value).prop('disabled',false); });
+              }
+          }
+          else {
+              setTimeout( () => waitAngularReady(), 200);
+          }
+      };
+      waitAngularReady();
   };
 
   /**
@@ -1163,12 +1552,12 @@
    * @multilayer true
    */
   this.cronapi.screen.focusComponent = function(/** @type {ObjectType.OBJECT} @blockType ids_from_screen*/ id) {
-	  this.cronapi.$scope.safeApply( function() { 
+    this.cronapi.$scope.safeApply( function() {
       if( tinyMCE && tinyMCE.get(id) !== undefined) {
         tinyMCE.get(id).focus();
       }else{
-      $('#'+id).find('*').addBack().focus();
-      } 
+        $('#'+id).find('*').addBack().focus();
+      }
     });
   };
 
@@ -1187,6 +1576,26 @@
     $('#'+id).attr(attrName , attrValue);
   };
 
+  /**
+   * @type function
+   * @name {{changeContent}}
+   * @nameTags change|content|conteudo|moficiar
+   * @description {{changeContentDesc}}
+   * @param {ObjectType.STRING} id {{idsFromScreen}}
+   * @param {ObjectType.STRING} content {{content}}
+     * @param {ObjectType.BOOLEAN} compile {{compile}}
+   * @multilayer true
+   */
+    this.cronapi.screen.changeContent = function(/** @type {ObjectType.OBJECT} @blockType ids_from_screen*/ id , /** @type {ObjectType.STRING} */ content, /** @type {ObjectType.BOOLEAN} @blockType util_dropdown @keys false|true @values {{false}}|{{true}}*/ compile) {
+    $('#'+id).html(content);
+      if(compile === true || compile === 'true'){
+        var $injector = angular.injector(['ng']);
+        var that = this;
+        $injector.invoke(['$compile', function($compile) {
+          $compile(document.querySelector('#'+id))(that.cronapi.$scope);
+        }]);
+      }
+  };
 
   /**
    * @type function
@@ -1215,14 +1624,49 @@
       this[datasource].search("", this[datasource].caseInsensitive);
   };
 
+
+
+    /**
+     * @type function
+     * @name {{loadMoreName}}
+     * @nameTags load|datasource|next|page
+     * @description {{loadMoreNameDescription}}
+     * @param {ObjectType.STRING} datasource {{datasource}}
+     */
+    this.cronapi.screen.loadMore = function(/** @type {ObjectType.OBJECT} @blockType datasource_from_screen*/ datasource) {
+        getDatasource(datasource).$apply( function() { getDatasource(datasource).nextPage();});
+    };
+
+
+    /**
+     * @type function
+     * @name {{hasNextPageName}}
+     * @nameTags load|datasource|next|page
+     * @description {hasNextPageDescription}}
+     * @param {ObjectType.STRING} datasource {{datasource}}
+     * @returns {ObjectType.BOOLEAN}
+     */
+    this.cronapi.screen.hasNextPage = function(/** @type {ObjectType.OBJECT} @blockType datasource_from_screen*/ datasource) {
+        return getDatasource(datasource).hasNextPage();
+    };
+
+    /**
+     * @type function
+     * @name {{datasourceLoadName}}
+     * @nameTags load|datasource
+     * @description {{datasourceLoadDescription}}
+     * @param {ObjectType.STRING} datasource {{datasource}}
+     * @multilayer true
+     */
+    this.cronapi.screen.load = function(/** @type {ObjectType.OBJECT} @blockType datasource_from_screen*/ datasource) {
+        getDatasource(datasource).fetch({ params: {} }, undefined, undefined, { origin: "button" });
+    };
+
   /**
    * @category CategoryType.DATETIME
    * @categoryTags Date|Datetime|Data|Hora
    */
   this.cronapi.dateTime = {};
-
-
-  this.cronapi.dateTime.utcTimestamp = true
 
   this.cronapi.dateTime.formats = function() {
     var formats = [];
@@ -1241,14 +1685,12 @@
 
   this.cronapi.dateTime.getMomentObj = function(value) {
     var currentMoment = moment;
-    if (this.cronapi.dateTime.utcTimestamp)
-      currentMoment = moment.utc;
 
     if (value  instanceof moment) {
       return value;
     }
     else if (value instanceof Date) {
-      return currentMoment(value);
+      return currentMoment(value).utcOffset(window.timeZoneOffset);
     }
     else  {
       var formats = this.cronapi.dateTime.formats();
@@ -1534,7 +1976,8 @@
    * @returns {ObjectType.DATETIME}
    */
   this.cronapi.dateTime.getNow = function() {
-    return moment().toDate();
+    var momentDate = moment();
+    return momentDate.toDate();
   };
 
   /**
@@ -1547,29 +1990,7 @@
    * @returns {ObjectType.STRING}
    */
   this.cronapi.dateTime.formatDateTime = function(date, format) {
-    format = format.toLowerCase();
-    if (format.indexOf(':mm') > -1)
-      format = this.cronapi.internal.replaceAll(format, ':mm',':minutes');
-    format = this.cronapi.internal.replaceAll(format, ' ','+" "+');
-    format = this.cronapi.internal.replaceAll(format, ':','+":"+');
-
-    var dateVar = this.cronapi.dateTime.getMomentObj(date);
-    var dd = dateVar.get('date');
-    var mm = dateVar.get('month') + 1;
-    var yyyy = dateVar.get('year');
-    var hh = dateVar.get('hour');
-    var minutes = dateVar.get('minute');
-    var ss = dateVar.get('second');
-    var separator = '';
-    var maskChars = 'dmy';
-    for (var i = 0; i < format.length; i++) {
-      if (!maskChars.includes(format.charAt(i))) {
-        separator = format.charAt(i);
-        var formatLower = this.cronapi.internal.replaceAll(format, separator, '+separator+');
-        return eval(formatLower);
-      }
-    }
-    return '';
+    return this.cronapi.dateTime.getMomentObj(date).format(format);
   };
 
   /**
@@ -1579,7 +2000,7 @@
    * @description {{functionToNewDate}}
    * @param {ObjectType.LONG} year {{year}}
    * @param {ObjectType.LONG} month {{month}}
-   * @param {ObjectType.LONG} month {{day}}
+   * @param {ObjectType.LONG} day {{day}}
    * @param {ObjectType.LONG} hour {{hour}}
    * @param {ObjectType.LONG} minute {{minute}}
    * @param {ObjectType.LONG} second {{second}}
@@ -1593,7 +2014,69 @@
     date.setHours(hour);
     date.setMinutes(minute);
     date.setSeconds(second);
-    return this.cronapi.dateTime.getMomentObj(date.toLocaleString()).toDate();
+    return this.cronapi.dateTime.getMomentObj(date).toDate();
+  };
+
+  this.cronapi.dateTime.updateDate = function(value, year, month, day, hour, minute, second, millisecond) {
+    var date = this.cronapi.dateTime.getMomentObj(value).toDate();
+    if (date && !isNaN(date.getTime())) {
+      date.setYear(year);
+      date.setMonth(month - 1);
+      date.setDate(day);
+      date.setHours(hour);
+      date.setMinutes(minute);
+      date.setSeconds(second);
+      date.setMilliseconds(millisecond);
+    }
+    else{
+      this.cronapi.screen.notify('error',this.cronapi.i18n.translate("InvalidDate",[  ]));
+      return;
+    }
+    return this.cronapi.dateTime.getMomentObj(date).toDate();
+  };
+
+  /**
+   * @type function
+   * @name {{updateDate}}
+   * @nameTags setDate|updateDate
+   * @description {{functionToUpdateDate}}
+   * @param {ObjectType.DATETIME} date {{ObjectType.DATETIME}}
+   * @param {ObjectType.STRING} type {{attribute}}
+   * @param {ObjectType.LONG} value {{value}}
+   * @returns {ObjectType.DATETIME}
+   */
+  this.cronapi.dateTime.updateNewDate = function(date, /** @type {ObjectType.STRING} @description {{attribute}} @blockType util_dropdown @keys year|month|day|hour|minute|second|millisecond  @values {{year}}|{{month}}|{{day}}|{{hour}}|{{minute}}|{{second}}|{{millisecond}}  */ type, value ) {
+    var updatedDate = this.cronapi.dateTime.getMomentObj(date).toDate();
+    if (updatedDate && !isNaN(updatedDate.getTime())) {
+      switch(type){
+        case "year":
+          updatedDate.setYear(value);
+          break;
+        case "month":
+          updatedDate.setMonth(value - 1);
+          break;
+        case "day":
+          updatedDate.setDate(value);
+          break;
+        case "hour":
+          updatedDate.setHours(value);
+          break;
+        case "minute":
+          updatedDate.setMinutes(value);
+          break;
+        case "second":
+          updatedDate.setSeconds(value);
+          break;
+        case "millisecond":
+          updatedDate.setMilliseconds(value);
+          break;
+      }
+    }
+    else{
+      this.cronapi.screen.notify('error',this.cronapi.i18n.translate("InvalidDate",[  ]));
+      return;
+    }
+    return this.cronapi.dateTime.getMomentObj(updatedDate).toDate();
   };
 
   /**
@@ -1608,6 +2091,35 @@
    */
   this.cronapi.text.prompt = function(/** @type {ObjectType.STRING} @defaultValue abc*/ value) {
     return null;
+  }
+
+     /**
+   * @type function
+   * @name {{newline}}
+   * @description {{newlineDescription}}
+   * @returns {ObjectType.STRING}
+   */
+  this.cronapi.text.newline = function() {
+    return "\n";
+  }
+
+  /**
+   * @type function
+   * @name {{replaceName}}
+   * @nameTags text|replace
+   * @description {{replaceDescription}}
+   * @param {ObjectType.STRING} textReplace {{textReplaceElement}}
+   * @param {ObjectType.STRING} textReplaceTargetRegex {{textReplaceTargetRegexElement}}
+   * @param {ObjectType.STRING} typeReplace {{typeReplaceElement}}
+   * @param {ObjectType.STRING} textReplaceReplacement {{textReplaceReplacementElement}}
+   * @returns {ObjectType.STRING}
+   */
+  this.cronapi.text.replaceAll = function(/** @type {ObjectType.STRING} @defaultValue Xmas.*/ textReplace, /** @type {ObjectType.STRING} @defaultValue X*/ textReplaceTargetRegex, /** @type {ObjectType.STRING} @description {{typeReplaceElement}} @defaultValue - @blockType util_dropdown @keys -|g|i|m|gi|gim|gm  @values {{-}}|{{g}}|{{i}}|{{m}}|{{gi}}|{{gim}}|{{gm}}  */ typeReplace, /** @type {ObjectType.STRING} @defaultValue Christmas*/ textReplaceReplacement){
+    if (this.cronapi.logic.isNull(textReplace) || this.cronapi.logic.isNull(textReplaceTargetRegex) || this.cronapi.logic.isNull(textReplaceReplacement))
+      return null;
+    if (typeReplace !== '-')
+      return textReplace.replace(new RegExp(textReplaceTargetRegex, typeReplace), textReplaceReplacement);
+    return textReplace.replace(textReplaceTargetRegex, textReplaceReplacement);
   }
 
   /**
@@ -2019,91 +2531,120 @@
   };
 
   this.cronapi.internal.startCamera = function(field) {
-    var cameraContainer =   '<div class="camera-container" style="margin-left:-$marginleft$;margin-top:-$margintop$">\
-                                    <div class="btn btn-success button button-balanced" id="cronapiVideoCaptureOk" style="position: absolute; z-index: 999999999;">\
-                                        <span class="glyphicon glyphicon-ok icon ion-checkmark-round"></span>\
-                                    </div>\
-                                    <div class="btn btn-danger button button-assertive button-cancel-capture" id="cronapiVideoCaptureCancel" style="position: absolute; margin-left: 42px; z-index: 999999999;">\
-                                        <span class="glyphicon glyphicon-remove icon ion-android-close"></span>\
-                                    </div>\
-                                    <video id="cronapiVideoCapture" style="height: $height$; width: $width$;" autoplay=""></video>\
-                            </div>';
+    //verify if user is on Browser or not
+    if(window.cordova && window.cordova.platformId && window.cordova.platformId !== 'browser') {
+      // If in mobile devices use native camera cordova plugin
+      var that = this;
+      navigator.camera.getPicture(function (result) {
+        that.cronapi.screen.changeValueOfField(field, result);
+      }, function (error) {
+        console.error(error);
+        that.cronapi.$scope.Notification.error(message);
+      }, {
+        quality: 60, //Mobile images are very big to be stored into database, so reducing their quality (same as whatsapp images) improve performance and reduce db size
+        destinationType: Camera.DestinationType.DATA_URL,
+        encodingType: Camera.EncodingType.PNG,
+        correctOrientation: true
+      });
+    }else{
+      var cameraContainer =   '<div class="camera-container" style="margin-left:-$marginleft$;margin-top:-$margintop$">\
+                                      <div class="btn btn-success button button-balanced" id="cronapiVideoCaptureOk" style="position: absolute; z-index: 999999999;">\
+                                          <span class="glyphicon glyphicon-ok icon ion-checkmark-round"></span>\
+                                      </div>\
+                                      <div class="btn btn-danger button button-assertive button-cancel-capture" id="cronapiVideoCaptureCancel" style="position: absolute; margin-left: 42px; z-index: 999999999;">\
+                                          <span class="glyphicon glyphicon-remove icon ion-android-close"></span>\
+                                      </div>\
+                                      <video id="cronapiVideoCapture" style="height: $height$; width: $width$;" autoplay=""></video>\
+                              </div>';
 
 
-    function getMaxResolution(width, height) {
-      var maxWidth = window.innerWidth;
-      var maxHeight = window.innerHeight;
-      var ratio = 0;
+      function getMaxResolution(width, height) {
+        var maxWidth = window.innerWidth;
+        var maxHeight = window.innerHeight;
+        var ratio = 0;
 
-      ratio = maxWidth / width;
-      height = height * ratio;
-      width = width * ratio;
-
-      if(width > maxWidth){
         ratio = maxWidth / width;
         height = height * ratio;
         width = width * ratio;
-      }
 
-      if(height > maxHeight){
-        ratio = maxHeight / height;
-        width = width * ratio;
-        height = height * ratio;
-      }
-
-      return { width: width, height: height };
-    }
-
-    var streaming = null;
-    var mediaConfig =  { video: true };
-    var errBack = function(e) {
-      console.log('An error has occurred!', e)
-    };
-
-    if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      navigator.mediaDevices.getUserMedia(mediaConfig).then(function(stream) {
-        streaming = stream;
-
-        var res = getMaxResolution(stream.getTracks()[0].getSettings().width, stream.getTracks()[0].getSettings().height);
-        var halfWidth = res.width;
-        var halfHeight = res.height;
-        try {
-          halfWidth = parseInt(halfWidth/2);
-          halfHeight = parseInt(halfHeight/2);
+        if(width > maxWidth){
+          ratio = maxWidth / width;
+          height = height * ratio;
+          width = width * ratio;
         }
-        catch (e) { }
 
-        cameraContainer =
-            cameraContainer
-                .split('$height$').join(res.height+'px')
-                .split('$width$').join(res.width+'px')
-                .split('$marginleft$').join(halfWidth+'px')
-                .split('$margintop$').join(halfHeight+'px')
-        ;
-        var cronapiVideoCapture = $(cameraContainer);
-        cronapiVideoCapture.prependTo("body");
-        var videoDOM = document.getElementById('cronapiVideoCapture');
+        if(height > maxHeight){
+          ratio = maxHeight / height;
+          width = width * ratio;
+          height = height * ratio;
+        }
 
-        cronapiVideoCapture.find('#cronapiVideoCaptureCancel').on('click',function() {
-          if (streaming!= null && streaming.getTracks().length > 0)
-            streaming.getTracks()[0].stop();
-          $(cronapiVideoCapture).remove();
+        return { width: width, height: height };
+      }
+
+      var streaming = null;
+      var mediaConfig =  { video: true };
+      var errBack = function(e) {
+        console.log('An error has occurred!', e)
+      };
+
+      if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia(mediaConfig).then(function(stream) {
+          streaming = stream;
+
+          var res = getMaxResolution(stream.getTracks()[0].getSettings().width, stream.getTracks()[0].getSettings().height);
+          var halfWidth = res.width;
+          var halfHeight = res.height;
+          try {
+            halfWidth = parseInt(halfWidth/2);
+            halfHeight = parseInt(halfHeight/2);
+          }
+          catch (e) { }
+
+          cameraContainer =
+              cameraContainer
+              .split('$height$').join(res.height+'px')
+              .split('$width$').join(res.width+'px')
+              .split('$marginleft$').join(halfWidth+'px')
+              .split('$margintop$').join(halfHeight+'px')
+          ;
+          var cronapiVideoCapture = $(cameraContainer);
+          cronapiVideoCapture.prependTo("body");
+          var videoDOM = document.getElementById('cronapiVideoCapture');
+
+          cronapiVideoCapture.find('#cronapiVideoCaptureCancel').on('click',function() {
+            if (streaming!= null && streaming.getTracks().length > 0)
+              streaming.getTracks()[0].stop();
+            $(cronapiVideoCapture).remove();
+          }.bind(this));
+
+          cronapiVideoCapture.find('#cronapiVideoCaptureOk').on('click',function() {
+            this.cronapi.internal.captureFromCamera(field, res.width, res.height);
+            if (streaming!= null && streaming.getTracks().length > 0)
+              streaming.getTracks()[0].stop();
+            $(cronapiVideoCapture).remove();
+          }.bind(this));
+
+          videoDOM.srcObject = stream;
+          videoDOM.onloadedmetadata = function(e) {
+            videoDOM.play();
+          };
         }.bind(this));
-
-        cronapiVideoCapture.find('#cronapiVideoCaptureOk').on('click',function() {
-          this.cronapi.internal.captureFromCamera(field, res.width, res.height);
-          if (streaming!= null && streaming.getTracks().length > 0)
-            streaming.getTracks()[0].stop();
-          $(cronapiVideoCapture).remove();
-        }.bind(this));
-
-        videoDOM.src = window.URL.createObjectURL(stream);
-        videoDOM.play();
-      }.bind(this));
+      }
     }
   };
 
   this.cronapi.internal.downloadFileEntityMobile = function(datasource, field, indexData) {
+
+    function downloadUrl(url, fileName) {
+      var link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute("download", fileName);
+      var event = document.createEvent('MouseEvents');
+      event.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+      link.dispatchEvent(event);
+    }
+
     var tempJsonFileUploaded = null;
     var valueContent;
     var itemActive;
@@ -2135,33 +2676,52 @@
       window.open(valueContent, '_system');
     }
     else {
-      var url = '/api/cronapi/downloadFile';
-      var splited = datasource.entity.split('/');
+      if (datasource.isOData()) {
+        var urlCreator = window.URL || window.webkitURL || window.mozURL || window.msURL;
+        var bytesOrFileInput;
+        var fileName = 'download';
 
-      var entity = splited[splited.length-1];
-      if (entity.indexOf(":") > -1) {
-        //Siginifica que é relacionamento, pega a entidade do relacionamento
-        var entityRelation = '';
-        var splitedDomainBase = splited[3].split('.');
-        for (var i=0; i<splitedDomainBase.length-1;i++)
-          entityRelation += splitedDomainBase[i]+'.';
-        var entityRelationSplited = entity.split(':');
-        entity = entityRelation + entityRelationSplited[entityRelationSplited.length-1];
+        if (valueContent.match(/__odataFile_/g)) {
+          bytesOrFileInput = eval(valueContent);
+          fileName = bytesOrFileInput.name
+        }
+        else {
+          fileName += this.cronapi.internal.getExtensionBase64(valueContent);
+          valueContent = window.atob(valueContent);
+          bytesOrFileInput = this.cronapi.internal.castBinaryStringToByteArray(valueContent);
+        }
+        var url = urlCreator.createObjectURL(new Blob([bytesOrFileInput], {type: 'application/octet-stream'}));
+        downloadUrl(url, fileName);
       }
-      url += '/' + entity;
-      url += '/' + field;
-      var object = itemActive;
-      var ids = datasource.getKeyValues(object);
-      var currentIdxId = 0;
-      for (var attr in ids) {
-        if (currentIdxId == 0)
-          url  = url + '/' + object[attr];
-        else
-          url  = url + ':' + object[attr];
-        currentIdxId++;
+      else {
+        var url = '/api/cronapi/downloadFile';
+        var splited = datasource.entity.split('/');
+
+        var entity = splited[splited.length - 1];
+        if (entity.indexOf(":") > -1) {
+          //Siginifica que é relacionamento, pega a entidade do relacionamento
+          var entityRelation = '';
+          var splitedDomainBase = splited[3].split('.');
+          for (var i = 0; i < splitedDomainBase.length - 1; i++)
+            entityRelation += splitedDomainBase[i] + '.';
+          var entityRelationSplited = entity.split(':');
+          entity = entityRelation + entityRelationSplited[entityRelationSplited.length - 1];
+        }
+        url += '/' + entity;
+        url += '/' + field;
+        var object = itemActive;
+        var ids = datasource.getKeyValues(object);
+        var currentIdxId = 0;
+        for (var attr in ids) {
+          if (currentIdxId == 0)
+            url = url + '/' + object[attr];
+          else
+            url = url + ':' + object[attr];
+          currentIdxId++;
+        }
+        var finalUrl = this.cronapi.internal.getAddressWithHostApp(url);
+        window.open(finalUrl, '_system');
       }
-      var finalUrl = this.cronapi.internal.getAddressWithHostApp(url);
-      window.open(finalUrl, '_system');
     }
   };
 
@@ -2176,14 +2736,18 @@
     this.cronapi.screen.changeValueOfField(field, base64);
   };
 
-  this.cronapi.internal.castBase64ToByteArray = function(base64) {
-    var binary_string =  window.atob(base64);
+  this.cronapi.internal.castBinaryStringToByteArray = function(binary_string) {
     var len = binary_string.length;
     var bytes = new Uint8Array( len );
     for (var i = 0; i < len; i++)        {
       bytes[i] = binary_string.charCodeAt(i);
     }
     return bytes;
+  };
+
+  this.cronapi.internal.castBase64ToByteArray = function(base64) {
+    var binary_string = window.atob(base64);
+    return this.cronapi.internal.castBinaryStringToByteArray(binary_string);
   };
 
   this.cronapi.internal.castByteArrayToString = function(bytes) {
@@ -2199,7 +2763,7 @@
     catch (e) {
       try {
         //Tenta pegar do header
-        json = JSON.parse(this.cronapi.internal.castByteArrayToString(this.cronapi.internal.castBase64ToByteArray(data)))
+        json = JSON.parse(window.atob(data));
       }
       catch (e) {
         //Verifica se é drpobox
@@ -2212,6 +2776,26 @@
           json.fileExtension = extension;
           json.name = fullName.replace(extension, '');
           json.contentType = 'file/'+extension.replace('.','');
+        }
+        else if (data && data.match(/__odataFile_/g)) {
+          var file = eval(data);
+          var fullNameSplited = file.name.split('.');
+          var extension = '.' + fullNameSplited[fullNameSplited.length - 1];
+
+          json = {};
+          json.fileExtension = extension;
+          json.name = file.name;
+          json.contentType = file.type || 'unknown';
+        }
+        else if (data && this.cronapi.internal.isBase64(data)) {
+          var fileName = 'download';
+          var fileExtesion = this.cronapi.internal.getExtensionBase64(data);
+          var contentType = this.cronapi.internal.getContentTypeFromExtension(fileExtesion);
+          fileName += fileExtesion;
+          json = {};
+          json.fileExtension = fileExtesion;
+          json.name = fileName;
+          json.contentType = contentType;
         }
       }
     }
@@ -2226,7 +2810,87 @@
     }
   };
 
+  this.cronapi.internal.getContentTypeFromExtension = function(extension) {
+    if (extension) {
+      switch (extension.toLowerCase()) {
+        case '.png':
+          return 'image/png';
+        case '.jpg':
+          return 'image/jpeg';
+        case '.mp4':
+          return 'video/mp4';
+        case '.pdf':
+          return 'application/pdf';
+        case '.ico':
+          return 'image/vnd.microsoft.icon';
+        case '.rar':
+          return 'application/x-rar-compressed';
+        case '.rtf':
+          return 'application/rtf';
+        case '.txt':
+          return 'text/plain';
+        case '.zip':
+          return 'application/zip';
+        case '.srt':
+          return 'text/srt';
+        default:
+          return 'unknown';
+      }
+    }
+  };
+
+  this.cronapi.internal.getExtensionBase64 = function(base64) {
+    if (base64) {
+      var data = base64.substr(0, 5);
+      switch (data.toLocaleUpperCase())
+      {
+        case "IVBOR":
+          return ".png";
+        case "/9J/4":
+          return ".jpg";
+        case "AAAAF":
+          return ".mp4";
+        case "JVBER":
+          return ".pdf";
+        case "AAABA":
+          return ".ico";
+        case "UMFYI":
+          return ".rar";
+        case "E1XYD":
+          return ".rtf";
+        case "U1PKC":
+          return ".txt";
+        case "UESDB":
+          return ".zip";
+        case "MQOWM":
+        case "77U/M":
+          return ".srt";
+        default:
+          return "";
+      }
+    }
+    return "";
+  };
+
+  this.cronapi.internal.isBase64 = function(str) {
+    try {
+      return btoa(atob(str)) == str;
+    } catch (err) {
+      return false;
+    }
+  };
+
   this.cronapi.internal.downloadFileEntity = function(datasource, field, indexData) {
+
+    function downloadUrl(url, fileName) {
+      var link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute("download", fileName);
+      var event = document.createEvent('MouseEvents');
+      event.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+      link.dispatchEvent(event);
+    }
+
     var tempJsonFileUploaded = null;
     var valueContent;
     var itemActive;
@@ -2257,68 +2921,77 @@
       window.open(valueContent);
     }
     else {
-      var url = '/api/cronapi/downloadFile';
-      var splited = datasource.entity.split('/');
 
-      var entity = splited[splited.length-1];
-      if (entity.indexOf(":") > -1) {
-        //Siginifica que é relacionamento, pega a entidade do relacionamento
-        var entityRelation = '';
-        var splitedDomainBase = splited[3].split('.');
-        for (var i=0; i<splitedDomainBase.length-1;i++)
-          entityRelation += splitedDomainBase[i]+'.';
-        var entityRelationSplited = entity.split(':');
-        entity = entityRelation + entityRelationSplited[entityRelationSplited.length-1];
-      }
-
-      url += '/' + entity;
-      url += '/' + field;
-      var _u = JSON.parse(localStorage.getItem('_u'));
-      var object = itemActive;
-
-      var finalUrl = this.cronapi.internal.getAddressWithHostApp(url);
-
-      this.$promise = this.cronapi.$scope.$http({
-        method: 'POST',
-        url: finalUrl,
-        data: (object) ? JSON.stringify(object) : null,
-        responseType: 'blob',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-AUTH-TOKEN': _u.token,
-        }
-      }).success(function(data, status, headers, config) {
-        var octetStreamMime = 'application/octet-stream';
-        headers = headers();
-        var filename = headers['x-filename'] || 'download.bin';
-        var contentType = headers['content-type'] || octetStreamMime;
+      if (datasource.isOData()) {
         var urlCreator = window.URL || window.webkitURL || window.mozURL || window.msURL;
-        try
-        {
-          var link = document.createElement('a');
-          if('download' in link)
+        var bytesOrFileInput;
+        var fileName = 'download';
+
+        if (valueContent.match(/__odataFile_/g)) {
+          bytesOrFileInput = eval(valueContent);
+          fileName = bytesOrFileInput.name
+        }
+        else {
+          fileName += this.cronapi.internal.getExtensionBase64(valueContent);
+          valueContent = window.atob(valueContent);
+          bytesOrFileInput = this.cronapi.internal.castBinaryStringToByteArray(valueContent);
+        }
+        var url = urlCreator.createObjectURL(new Blob([bytesOrFileInput],{type: 'application/octet-stream'}));
+        downloadUrl(url, fileName);
+      }
+      else {
+        var url = '/api/cronapi/downloadFile';
+        var splited = datasource.entity.split('/');
+
+        var entity = splited[splited.length-1];
+        if (entity.indexOf(":") > -1) {
+          //Siginifica que é relacionamento, pega a entidade do relacionamento
+          var entityRelation = '';
+          var splitedDomainBase = splited[3].split('.');
+          for (var i=0; i<splitedDomainBase.length-1;i++)
+            entityRelation += splitedDomainBase[i]+'.';
+          var entityRelationSplited = entity.split(':');
+          entity = entityRelation + entityRelationSplited[entityRelationSplited.length-1];
+        }
+
+        url += '/' + entity;
+        url += '/' + field;
+        var _u = JSON.parse(localStorage.getItem('_u'));
+        var object = itemActive;
+
+        var finalUrl = this.cronapi.internal.getAddressWithHostApp(url);
+
+        this.$promise = this.cronapi.$scope.$http({
+          method: 'POST',
+          url: finalUrl,
+          data: (object) ? JSON.stringify(object) : null,
+          responseType: 'blob',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-AUTH-TOKEN': _u.token,
+          }
+        }).success(function(data, status, headers, config) {
+          headers = headers();
+          var filename = headers['x-filename'] || 'download.bin';
+          var urlCreator = window.URL || window.webkitURL || window.mozURL || window.msURL;
+          try
           {
             var url = urlCreator.createObjectURL(data);
-            link.setAttribute('href', url);
-            link.setAttribute("download", filename);
-            var event = document.createEvent('MouseEvents');
-            event.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
-            link.dispatchEvent(event);
+            downloadUrl(url, filename);
+          } catch(ex) {
+            console.log('Error downloading file');
+            console.log(ex);
           }
-        } catch(ex) {
+        }.bind(this)).error(function(data, status, headers, config) {
           console.log('Error downloading file');
-          console.log(ex);
-        }
-      }.bind(this)).error(function(data, status, headers, config) {
-        console.log('Error downloading file');
-      }.bind(this));
+        }.bind(this));
+      }
+
     }
 
   };
 
-  this.cronapi.internal.uploadFile = function(field, file, progressId) {
-    if (!file)
-      return;
+  this.cronapi.internal.uploadFileAjax = function(field, file, progressId) {
     var uploadUrl = '/api/cronapi/uploadFile';
     var formData = new FormData();
     formData.append("file", file);
@@ -2362,6 +3035,40 @@
     }.bind(this)).error(function(data, status, headers, config) {
       alert('Error uploading file');
     }.bind(this));
+
+  };
+
+  this.cronapi.internal.uploadFile = function(field, file, progressId) {
+    if (!file)
+      return;
+
+    var regexForDatasource = /(.*?).active./g;
+    var groupDatasource = regexForDatasource.exec(field);
+    //Verificar se é campo de um datasource
+    if (groupDatasource) {
+      var datasource = eval(groupDatasource[1]);
+      if (datasource.isOData()) {
+
+        var regexForField = /.active.([a-zA-Z0-9_-]*)/g;
+        var groupField = regexForField.exec(field);
+        var fieldName = groupField[1];
+
+        var schemaField = datasource.getFieldSchema(fieldName);
+        if (schemaField && schemaField.type == 'Binary') {
+          datasource.active['__odataFile_' + fieldName] = file;
+          datasource.active[fieldName] = datasource.name + '.active.__odataFile_' +  fieldName;
+        }
+        else {
+          this.cronapi.internal.uploadFileAjax(field, file, progressId);
+        }
+      }
+      else {
+        this.cronapi.internal.uploadFileAjax(field, file, progressId);
+      }
+    }
+    else {
+      this.cronapi.internal.uploadFileAjax(field, file, progressId);
+    }
   };
 
   /**
@@ -2439,6 +3146,125 @@
   };
 
   /**
+   * @type function
+   * @name {{serializeObject}}
+   * @description {{serializeObjectDescription}}
+   * @nameTags object
+   * @param {ObjectType.STRING} string {{string}}
+   * @returns {ObjectType.OBJECT}
+   */
+  this.cronapi.object.serializeObject = function(obj) {
+    return JSON.stringify(obj);
+  };
+
+  /**
+   * @type function
+   * @name {{deleteProperty}}
+   * @description {{deletePropertyDescription}}
+   * @nameTags object
+   * @param {ObjectType.OBJECT} object {{object}}
+   * @param {ObjectType.STRING} key {{key}}
+   */
+  this.cronapi.object.deleteProperty = function(obj, key) {
+    delete obj[key];
+  };
+
+  /**
+   * @type function
+   * @name {{createNewObject}}
+   * @nameTags createNewObject
+   * @description {{functionToCreateNewObject}}
+   * @arbitraryParams true
+   * @wizard procedures_createnewobject_callreturn
+   * @returns {ObjectType.OBJECT}
+   */
+  this.cronapi.object.newObject = function() {
+    var result = {};
+
+    if (arguments && arguments.length > 0) {
+      for (var i = 0; i < arguments.length; i++) {
+        var param = arguments[i];
+        if (param.name)
+          result[param.name] = param.value;
+      }
+    }
+    return result;
+  };
+
+  /**
+   * @type function
+   * @name {{getObjectField}}
+   * @nameTags getObjectField
+   * @description {{functionToGetObjectField}}
+   * @param {ObjectType.OBJECT} obj {{obj}}
+   * @param {ObjectType.STRING} field {{field}}
+   * @wizard procedures_get_field
+   */
+  this.cronapi.object.getObjectField = function(/** @type {ObjectType.OBJECT} @blockType variables_get */ obj, /** @type {ObjectType.STRING} @blockType procedures_get_field_object */ field) {
+    var result = undefined;
+    if (obj && field)
+      result = obj[field];
+    return result;
+  };
+
+  /**
+   * @category CategoryType.JSON
+   * @categoryTags JSON|json
+   */
+  this.cronapi.json = {};
+
+  /**
+   * @type function
+   * @name {{createObjectJson}}
+   * @description {{createObjectJsonDescription}}
+   * @nameTags object
+   * @param {ObjectType.STRING} string {{string}}
+   * @returns {ObjectType.OBJECT}
+   */
+  this.cronapi.json.createObjectFromString = function(string) {
+    return this.cronapi.object.createObjectFromString(string);
+  };
+
+  /**
+   * @type function
+   * @name {{setProperty}}
+   * @nameTags setProperty
+   * @param {ObjectType.OBJECT} object {{json}}
+   * @param {ObjectType.STRING} property {{property}}
+   * @param {ObjectType.OBJECT} value {{value}}
+   * @description {{setPropertyDescription}}
+   * @returns {ObjectType.VOID}
+   */
+  this.cronapi.json.setProperty = function(object, property, value) {
+    this.cronapi.object.setProperty(object, property, value)
+  };
+
+  /**
+   * @type function
+   * @name {{deleteProperty}}
+   * @description {{deletePropertyDescription}}
+   * @nameTags object
+   * @param {ObjectType.OBJECT} object {{json}}
+   * @param {ObjectType.STRING} key {{key}}
+   */
+  this.cronapi.json.deleteProperty = function(obj, key) {
+    this.cronapi.object.deleteProperty(obj, key);
+  };
+
+  /**
+   * @type function
+   * @name {{getProperty}}
+   * @nameTags getProperty
+   * @param {ObjectType.OBJECT} object {{json}}
+   * @param {ObjectType.STRING} property {{property}}
+   * @description {{getPropertyDescription}}
+   * @returns {ObjectType.OBJECT}
+   */
+  this.cronapi.json.getProperty = function(object, property) {
+    return this.cronapi.object.getProperty(object, property);
+  };
+
+  /**
    * @category CategoryType.DEVICE
    * @categoryTags CORDOVA|cordova|Dispositivos|device|Device
    */
@@ -2456,10 +3282,10 @@
   this.cronapi.cordova.vibrate = function(vibrateValue){
     navigator.vibrate(vibrateValue);
   };
-  
+
   this.cronapi.cordova.device = {};
-  
-   /**
+
+  /**
    *  @type function
    * @platform M
    * @name {{getFirebaseToken}}
@@ -2472,6 +3298,28 @@
   this.cronapi.cordova.device.getFirebaseToken = function(success,error){
     window.FirebasePlugin.getToken(success,error);
   };
+
+
+  /**
+   *  @type function
+   * @platform M
+   * @name {{getFirebaseNotificationData}}
+   * @nameTags firebase|token|push|notification
+   * @param {ObjectType.STATEMENTSENDER} success {{success}}
+   * @param {ObjectType.STATEMENTSENDER} error {{error}}
+   * @description {{getFirebaseNotificationDataDesc}}
+   * @returns {ObjectType.VOID}
+   */
+  this.cronapi.cordova.device.getFirebaseNotificationData = function(success,error){
+    function onDeviceReady() { window.FirebasePlugin.onNotificationOpen(function(notification) {
+      success(notification);
+    }, function(err) {
+      error(err);
+    });
+    };
+    document.addEventListener("deviceready", onDeviceReady, false);
+  };
+
 
   /**
    *  @type function
@@ -2516,7 +3364,7 @@
    * @returns {ObjectType.LONG}
    */
   this.cronapi.cordova.geolocation.watchPosition = function(success, error, maximumAge, timeout, enableHighAccuracy){
-    return navigator.geolocation.watchPosition(callbackSuccess, callbackError, { maximumAge: maximumAge, timeout: timeout, enableHighAccuracy: enableHighAccuracy });
+    return navigator.geolocation.watchPosition(success, error, { maximumAge: maximumAge, timeout: timeout, enableHighAccuracy: enableHighAccuracy });
   };
 
   /**
@@ -2543,9 +3391,10 @@
    * @returns {ObjectType.VOID}
    */
 
-  this.cronapi.cordova.camera.getPicture = function(/** @type {ObjectType.STATEMENTSENDER} @description {{success}} */ success, /** @type {ObjectType.STATEMENTSENDER} @description {{error}} */  error, /** @type {ObjectType.LONG} @description {{destinationType}} @blockType util_dropdown @keys 0|1|2 @values DATA_URL|FILE_URI|NATIVE_URI  */  destinationType, /** @type {ObjectType.LONG} @description {{pictureSourceType}} @blockType util_dropdown @keys 0|1|2 @values PHOTOLIBRARY|CAMERA|SAVEDPHOTOALBUM  */ pictureSourceType, /** @type {ObjectType.LONG} @description {{mediaType}} @blockType util_dropdown @keys 0|1|2 @values PICTURE|VIDEO|ALLMEDIA  */ mediaType) {
+  this.cronapi.cordova.camera.getPicture = function(/** @type {ObjectType.STATEMENTSENDER} @description {{success}} */ success, /** @type {ObjectType.STATEMENTSENDER} @description {{error}} */  error, /** @type {ObjectType.LONG} @description {{destinationType}} @blockType util_dropdown @keys 0|1|2 @values DATA_URL|FILE_URI|NATIVE_URI  */  destinationType, /** @type {ObjectType.LONG} @description {{pictureSourceType}} @blockType util_dropdown @keys 0|1|2 @values PHOTOLIBRARY|CAMERA|SAVEDPHOTOALBUM  */ pictureSourceType, /** @type {ObjectType.LONG} @description {{mediaType}} @blockType util_dropdown @keys 0|1|2 @values PICTURE|VIDEO|ALLMEDIA  */ mediaType, /** @type {ObjectType.BOOLEAN} @description {{allowEdit}} @blockType util_dropdown @keys false|true @values {{false}}|{{true}}  */ allowEdit) {
     if(mediaType === undefined || mediaType === null) mediaType = 0 ;
-    navigator.camera.getPicture(success, error, { destinationType: destinationType , sourceType : pictureSourceType , mediaType: mediaType });
+    allowEdit = (allowEdit === true || allowEdit === 'true');
+    navigator.camera.getPicture(success, error, { destinationType: Number(destinationType) , sourceType : Number(pictureSourceType) , mediaType: Number(mediaType) , allowEdit: allowEdit});
   };
 
   /**
@@ -2564,13 +3413,15 @@
           success(result.text);
         },
         function (errorMsg) {
-          error(errorMsg);
+          if (errorMsg !== 'Scan is already in progress') {
+            // Verification in order to avoid issue: https://github.com/phonegap/phonegap-plugin-barcodescanner/issues/660
+            error(errorMsg);
+          }
         },
         {
           preferFrontCamera : false,
           showFlipCameraButton : true,
           showTorchButton : true,
-          torchOn: true,
           saveHistory: true,
           prompt : message,
           resultDisplayDuration: 500,
@@ -2861,6 +3712,21 @@
 
   };
 
+  /**
+   * @type function
+   * @platform M
+   * @name {{openInAppBrowser}}
+   * @nameTags openInAppBrowser
+   * @param {ObjectType.STRING} url {{url}}
+   * @description {{openInAppBrowserDescription}}
+   * @returns {ObjectType.VOID}
+   */
+  this.cronapi.cordova.database.openInAppBrowser = function(url) {
+    if(cordova.InAppBrowser){
+      cordova.InAppBrowser.open(url, '_blank', 'location=no');
+    }
+  };
+
 
   //Private variables and functions
   this.cronapi.internal.ptDate = function(varray) {
@@ -2909,7 +3775,7 @@
     for (i = 0; i < value.length; i++) {
       if (withAccents.search(value.substr(i, 1)) >= 0) {
         newValue += withoutAccents.substr(withAccents.search(value
-            .substr(i, 1)), 1);
+        .substr(i, 1)), 1);
       } else {
         newValue += value.substr(i, 1);
       }
@@ -3067,7 +3933,7 @@
    * @description {{createChartDescription}}
    * @arbitraryParams true
    */
-  this.cronapi.chart.createChart = function(/** @type {ObjectType.OBJECT} @description {{createChartId}} @blockType ids_from_screen*/ chartId,  /** @type {ObjectType.STRING} @description {{createChartType}} @blockType util_dropdown @keys line|bar|doughnut|pie|polarArea  @values line|bar|doughnut|pie|polarArea  */ type, /** @type {ObjectType.LIST} @description {{createChartLegends}} */  chartLegends, /** @type {ObjectType.LIST} @description {{createChartOptions}} */ options, /** @type {ObjectType.LIST}  @description {{createChartSeries}}  */ series) {
+  this.cronapi.chart.createChart = function(/** @type {ObjectType.OBJECT} @description {{createChartId}} @blockType ids_from_screen*/ chartId,  /** @type {ObjectType.STRING} @description {{createChartType}} @blockType util_dropdown @keys line|bar|horizontalBar|doughnut|pie|polarArea  @values line|bar|horizontalBar|doughnut|pie|polarArea  */ type, /** @type {ObjectType.LIST} @description {{createChartLegends}} */  chartLegends, /** @type {ObjectType.LIST} @description {{createChartOptions}} */ options, /** @type {ObjectType.LIST}  @description {{createChartSeries}}  */ series) {
 
     var CSS_COLOR_NAMES = ["#FF5C00","#0E53A7","#48DD00","#FFD500","#7309AA","#CD0074","#00AF64","#BF8230","#F16D95","#A65000","#A65000","#AF66D5"];
     var colorIndex = 0;
@@ -3099,7 +3965,16 @@
 
     function getDataset(args){
       var ds = [];
-      for(var size = 4 ; size <  args.length ; size++){
+      var size = 4;
+      if(Array.isArray(args[4])
+      && typeof args[4][0] === 'object'
+      && 'label' in args[4][0]
+      && 'data' in args[4][0]
+      && 'options' in args[4][0]){
+        args = args[4];
+        size = 0;
+      }
+      for(size ; size <  args.length ; size++){
         if(args[size].label){
           if(args[size].options){
             if(args[size].data) ds.push(cronapi.chart.createDataset(args[size].label,args[size].data,args[size].options) );
@@ -3171,7 +4046,8 @@
 
         break;
       }
-      case 'bar':{
+      case 'bar':
+      case 'horizontalBar': {
         json.data.datasets = getDataset(arguments);
         //Applying configs in Datasets
         $.each(json.data.datasets, function(index,value){
@@ -3182,8 +4058,10 @@
         displayLegend();
         break;
       }
-
-      case 'doughnut':{
+      case 'doughnut':
+      case 'pie':
+      case 'polarArea':
+      {
         var ds = getDataset(arguments);
         $.each(ds, function(index, value){
           var dtset = {};
@@ -3193,41 +4071,6 @@
           $.each(dtset.data, function(indexx,valuee){
             dtset.backgroundColor.push( CSS_COLOR_NAMES[nextColor()] );
 
-          });
-          dtset.borderColor =  dtset.backgroundColor;
-          json.data.datasets.push(dtset);
-          colorIndex = 0;
-        });
-        break;
-
-      }
-      case 'pie':{
-        var ds = getDataset(arguments);
-        $.each(ds, function(index, value){
-          var dtset = {};
-          dtset = ds[index];
-          dtset.backgroundColor = [];
-          dtset.borderColor = [];
-          $.each(dtset.data, function(indexx,valuee){
-            dtset.backgroundColor.push( CSS_COLOR_NAMES[nextColor()] );
-
-          });
-          dtset.borderColor =  dtset.backgroundColor;
-          json.data.datasets.push(dtset);
-          colorIndex = 0;
-        });
-        break;
-      }
-
-      case 'polarArea':{
-        var ds = getDataset(arguments);
-        $.each(ds, function(index, value){
-          var dtset = {};
-          dtset = ds[index];
-          dtset.backgroundColor = [];
-          dtset.borderColor = [];
-          $.each(dtset.data, function(indexx,valuee){
-            dtset.backgroundColor.push( CSS_COLOR_NAMES[nextColor()] );
           });
           dtset.borderColor =  dtset.backgroundColor;
           json.data.datasets.push(dtset);
@@ -3258,5 +4101,98 @@
     if(Array.isArray(options)){   dataset.options = options;} else  dataset.options = JSON.parse(options);
     return dataset;
   }
+
+
+
+  /**
+   * @category CategoryType.SOCIAL
+   * @categoryTags login|social|network|facebook|github|google|linkedin
+   */
+  this.cronapi.social = {};
+
+
+  this.cronapi.social.gup = function(name,url){
+    if (!url) url = location.href;
+    name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+    var regexS = "[\\?&]"+name+"=([^&#]*)";
+    var regex = new RegExp( regexS );
+    var results = regex.exec( url );
+    return results == null ? null : results[1];
+  }
+
+  this.cronapi.social.login = function(login,password,options){
+    var item;
+    this.cronapi.screen.showLoading();
+    if (!this.cronapi.logic.isNullOrEmpty(this.cronapi.screen.getHostapp())) {
+      this.cronapi.util.getURLFromOthers('POST', 'application/x-www-form-urlencoded', String(this.cronapi.screen.getHostapp()) + String('auth'), this.cronapi.object.createObjectFromString(['{ \"username\": \"',login,'\" , \"password\": \"',password,'\" } '].join('')), this.cronapi.object.createObjectFromString(['{ \"X-AUTH-TOKEN\": \"',options,'\" } '].join('')), function(sender_item) {
+        item = sender_item;
+        this.cronapi.screen.hide();
+        this.cronapi.util.setLocalStorage('_u', this.cronapi.object.serializeObject(item));
+        this.cronapi.screen.changeView("#/app/logged/home",[  ]);
+      }.bind(this), function(sender_item) {
+        item = sender_item;
+        if (this.cronapi.object.getProperty(item, 'status') == '403' || this.cronapi.object.getProperty(item, 'status') == '401') {
+          this.cronapi.screen.notify('error',this.cronapi.i18n.translate("LoginViewInvalidpassword",[  ]));
+        } else {
+          this.cronapi.screen.notify('error',this.cronapi.object.getProperty(item, 'responseJSON.message'));
+        }
+        this.cronapi.screen.hide();
+      }.bind(this));
+    } else {
+      this.cronapi.screen.hide();
+      this.cronapi.screen.notify('error','HostApp is Required');
+    }
+  }
+
+  /**
+   * @type function
+   * @name {{socialLogin}}
+   * @nameTags login|social|network|facebook|github|google|linkedin
+   * @description {{socialLoginDescription}}
+   * @param {ObjectType.STRING} socialNetwork {{socialNetwork}}
+   * @param {ObjectType.BOOLEAN} clearCacheBeforeOpen {{clearCacheBeforeOpen}}
+   * @returns {ObjectType.VOID}
+   */
+  this.cronapi.social.sociaLogin = function(/** @type {ObjectType.STRING} @description socialNetwork @blockType util_dropdown @keys facebook|github|google|linkedin @values facebook|github|google|linkedin  */ socialNetwork, /** @type {ObjectType.BOOLEAN} @blockType util_dropdown @keys false|true*/ clearCache) {
+    var that = this;
+    var u = window.hostApp+"signin/"+socialNetwork+"/";
+    if(cordova.InAppBrowser){
+      var clearCacheString = '';
+      if(clearCache === true || clearCache === 'true'){
+        clearCacheString = ',clearcache=yes';
+      }
+      var cref = cordova.InAppBrowser.open(u, '_blank', 'location=no' + clearCacheString);
+      cref.addEventListener('loadstart', function(event) {
+        if (event.url.indexOf("_ctk") > -1) {
+          cref.close();
+          that.cronapi.social.login.bind(that)('#OAUTH#', '#OAUTH#', that.cronapi.social.gup('_ctk',event.url));
+        }
+      });
+    }else{
+      //TODO LOGIN ON WEB
+    }
+  }
+
+  /**
+   * @type function
+   * @name {{getSelectedRowsGrid}}
+   * @nameTags getSelectedRowsGrid|Obter linhas selecionadas da grade
+   * @description {{functionToGetSelectedRowsGrid}}
+   * @param {ObjectType.STRING} field {{field}}
+   * @returns {ObjectType.OBJECT}
+   */
+  this.cronapi.screen.getSelectedRowsGrid = function(/** @type {ObjectType.STRING} @blockType field_from_screen*/ field) {
+    var result = [];
+    var grid = $('[ng-model="'+ field  +'"]').children().data('kendoGrid');
+    if (grid) {
+      var selected = grid.select();
+      selected.each(function() {
+        var dataItem = grid.dataItem(this);
+        result.push(dataItem);
+      });
+    }
+    return result;
+  };
+
 
 }).bind(window)();
