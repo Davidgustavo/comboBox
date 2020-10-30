@@ -985,5 +985,134 @@
       "foreignKey": null
     },
     "serviceUrl": "api/cronapi/odata/v2/app/query106515/"
+  },
+  "query296259": {
+    "customId": "testeParametroRelatorio",
+    "queryName": "testeParametroRelatorio",
+    "sourceType": "blockly",
+    "baseEntity": "app.entity.User",
+    "blockly": {
+      "type": "server",
+      "blocklyMethod": "Executar",
+      "blocklyClass": "blockly.TesteParametroRelatorio",
+      "blocklyLanguage": "java",
+      "blocklyParams": [],
+      "blocklyJson": {
+        "namespace": "blockly.TesteParametroRelatorio",
+        "sourcePath": "src/main/java/blockly/testeParametroRelatorio.blockly",
+        "language": "java",
+        "methods": [
+          {
+            "name": "Executar",
+            "hasReturn": "true",
+            "params": [
+              "parametro"
+            ]
+          }
+        ]
+      },
+      "blocklyGETMethod": "Executar",
+      "blocklyPOSTMethod": "default",
+      "blocklyPUTMethod": "default",
+      "blocklyDELETEMethod": "default",
+      "blocklyFILTERMethod": "default",
+      "blocklyCOUNTMethod": "Executar"
+    },
+    "entitySimpleName": null,
+    "entityFullName": null,
+    "query": "",
+    "queryParamsValues": [
+      {
+        "fieldName": "parametro",
+        "fieldValue": ""
+      }
+    ],
+    "verbs": {
+      "GET": true,
+      "GETAuthorities": null,
+      "POST": true,
+      "POSTAuthorities": null,
+      "PUT": true,
+      "PUTAuthorities": null,
+      "DELETE": true,
+      "DELETEAuthorities": null,
+      "FILTER": true,
+      "FILTERAuthorities": null,
+      "COUNT": true,
+      "COUNTAuthorities": null
+    },
+    "events": {
+      "beforeInsert": null,
+      "beforeUpdate": null,
+      "beforeDelete": null,
+      "afterInsert": null,
+      "afterUpdate": null,
+      "afterDelete": null,
+      "onNavigate": null,
+      "onGetData": null
+    },
+    "defaultValues": {
+      "email": null,
+      "id": null,
+      "login": null,
+      "name": null,
+      "password": null,
+      "picture": null,
+      "theme": null
+    },
+    "defaultValuesProperties": {
+      "email": {
+        "key": false,
+        "nullable": true,
+        "type": "String"
+      },
+      "id": {
+        "key": true,
+        "nullable": false,
+        "type": "String"
+      },
+      "login": {
+        "key": false,
+        "nullable": false,
+        "type": "String"
+      },
+      "name": {
+        "key": false,
+        "nullable": false,
+        "type": "String"
+      },
+      "password": {
+        "key": false,
+        "nullable": false,
+        "type": "String"
+      },
+      "picture": {
+        "key": false,
+        "nullable": true,
+        "type": "String"
+      },
+      "theme": {
+        "key": false,
+        "nullable": true,
+        "type": "String"
+      }
+    },
+    "security": {
+      "email": null,
+      "id": null,
+      "login": null,
+      "name": null,
+      "password": null,
+      "picture": null,
+      "theme": null
+    },
+    "calcFields": {},
+    "calcFieldsSecurity": {},
+    "calcFieldsProperties": {},
+    "errorHandles": {
+      "primaryKey": null,
+      "foreignKey": null
+    },
+    "serviceUrl": "api/cronapi/odata/v2/app/query296259/"
   }
 }

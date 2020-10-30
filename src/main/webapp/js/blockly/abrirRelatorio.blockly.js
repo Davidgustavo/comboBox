@@ -8,5 +8,5 @@ window.blockly.js.blockly.AbrirRelatorio = window.blockly.js.blockly.AbrirRelato
  */
 window.blockly.js.blockly.AbrirRelatorio.abrirRelatorio = function() {
 
-  this.cronapi.util.openReport('reports/teste.report', []);
+  this.cronapi.util.openReport('reports/teste.report', [{ parametro : this.cronapi.screen.getValueOfField("vars.parametro") }]);
 }
